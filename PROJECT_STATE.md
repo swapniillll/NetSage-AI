@@ -37,7 +37,7 @@ TASK-005: tests/test_rule_checker.py, data/rule_results_sample.txt
 TASK-006: prompts_ai/diagnose_prompt.md
 TASK-007: scripts/diagnose.py, tests/test_diagnose_smoke.py. (Note: diagnoses.json contains 0 real API-generated entries because the execution environment lacked ANTHROPIC_API_KEY; the mocked smoke test verified the 3-case pipeline. Full dataset run happens in TASK-009.)
 TASK-008: scripts/validate_diagnosis.py, tests/test_validate_diagnosis.py
-TASK-009: scripts/run_pipeline.py, tests/test_pipeline_integration.py. (Note: The real full dataset run is BLOCKED due to an unavailable ANTHROPIC_API_KEY credential. Output generation deferred).
+TASK-009: scripts/run_pipeline.py, tests/test_pipeline_integration.py, data/rule_results.json, data/diagnoses.json. (Real full dataset run completed using Gemini 3.5 Flash-Lite. 30 cases processed. 30 successful diagnoses. 0 needs_manual_review. 0 unexpected pipeline crashes.)
 
 ## Known Issues / Deferred Items
 _(anything explicitly skipped or flagged needs_manual_review — list here so nothing is silently lost)_

@@ -1,0 +1,962 @@
+{
+  "C-001": [
+    {
+      "rule_name": "check_duplicate_ip",
+      "triggered": false,
+      "detail": "No duplicate IPs detected"
+    },
+    {
+      "rule_name": "check_wrong_mask",
+      "triggered": false,
+      "detail": "No PC ipconfig subnet masks found in evidence"
+    },
+    {
+      "rule_name": "check_gateway_mismatch",
+      "triggered": false,
+      "detail": "No default gateway found in evidence to check"
+    },
+    {
+      "rule_name": "check_interface_down",
+      "triggered": false,
+      "detail": "All detected interfaces are up/up"
+    },
+    {
+      "rule_name": "check_missing_vlan",
+      "triggered": false,
+      "detail": "No missing VLAN issues detected"
+    },
+    {
+      "rule_name": "check_missing_route",
+      "triggered": false,
+      "detail": "No missing route issues detected"
+    }
+  ],
+  "C-002": [
+    {
+      "rule_name": "check_duplicate_ip",
+      "triggered": false,
+      "detail": "No duplicate IPs detected"
+    },
+    {
+      "rule_name": "check_wrong_mask",
+      "triggered": false,
+      "detail": "No PC ipconfig subnet masks found in evidence"
+    },
+    {
+      "rule_name": "check_gateway_mismatch",
+      "triggered": false,
+      "detail": "No default gateway found in evidence to check"
+    },
+    {
+      "rule_name": "check_interface_down",
+      "triggered": false,
+      "detail": "All detected interfaces are up/up"
+    },
+    {
+      "rule_name": "check_missing_vlan",
+      "triggered": false,
+      "detail": "No missing VLAN issues detected"
+    },
+    {
+      "rule_name": "check_missing_route",
+      "triggered": false,
+      "detail": "No missing route issues detected"
+    }
+  ],
+  "C-003": [
+    {
+      "rule_name": "check_duplicate_ip",
+      "triggered": false,
+      "detail": "No duplicate IPs detected"
+    },
+    {
+      "rule_name": "check_wrong_mask",
+      "triggered": false,
+      "detail": "No PC ipconfig subnet masks found in evidence"
+    },
+    {
+      "rule_name": "check_gateway_mismatch",
+      "triggered": false,
+      "detail": "No default gateway found in evidence to check"
+    },
+    {
+      "rule_name": "check_interface_down",
+      "triggered": false,
+      "detail": "All detected interfaces are up/up"
+    },
+    {
+      "rule_name": "check_missing_vlan",
+      "triggered": false,
+      "detail": "No missing VLAN issues detected"
+    },
+    {
+      "rule_name": "check_missing_route",
+      "triggered": false,
+      "detail": "No missing route issues detected"
+    }
+  ],
+  "C-004": [
+    {
+      "rule_name": "check_duplicate_ip",
+      "triggered": false,
+      "detail": "No duplicate IPs detected"
+    },
+    {
+      "rule_name": "check_wrong_mask",
+      "triggered": false,
+      "detail": "No PC ipconfig subnet masks found in evidence"
+    },
+    {
+      "rule_name": "check_gateway_mismatch",
+      "triggered": false,
+      "detail": "No default gateway found in evidence to check"
+    },
+    {
+      "rule_name": "check_interface_down",
+      "triggered": false,
+      "detail": "All detected interfaces are up/up"
+    },
+    {
+      "rule_name": "check_missing_vlan",
+      "triggered": false,
+      "detail": "No missing VLAN issues detected"
+    },
+    {
+      "rule_name": "check_missing_route",
+      "triggered": false,
+      "detail": "No missing route issues detected"
+    }
+  ],
+  "C-005": [
+    {
+      "rule_name": "check_duplicate_ip",
+      "triggered": false,
+      "detail": "No duplicate IPs detected"
+    },
+    {
+      "rule_name": "check_wrong_mask",
+      "triggered": false,
+      "detail": "No PC ipconfig subnet masks found in evidence"
+    },
+    {
+      "rule_name": "check_gateway_mismatch",
+      "triggered": false,
+      "detail": "No default gateway found in evidence to check"
+    },
+    {
+      "rule_name": "check_interface_down",
+      "triggered": false,
+      "detail": "All detected interfaces are up/up"
+    },
+    {
+      "rule_name": "check_missing_vlan",
+      "triggered": true,
+      "detail": "Port is assigned to VLAN 30 but VLAN 30 does not exist on the switch (existing: 1, 10, 20)"
+    },
+    {
+      "rule_name": "check_missing_route",
+      "triggered": false,
+      "detail": "No missing route issues detected"
+    }
+  ],
+  "C-006": [
+    {
+      "rule_name": "check_duplicate_ip",
+      "triggered": false,
+      "detail": "No duplicate IPs detected"
+    },
+    {
+      "rule_name": "check_wrong_mask",
+      "triggered": false,
+      "detail": "No PC subnet mask mismatch detected"
+    },
+    {
+      "rule_name": "check_gateway_mismatch",
+      "triggered": true,
+      "detail": "Host default gateway 192.168.1.100 does not match any router interface IP (192.168.1.1)"
+    },
+    {
+      "rule_name": "check_interface_down",
+      "triggered": false,
+      "detail": "All detected interfaces are up/up"
+    },
+    {
+      "rule_name": "check_missing_vlan",
+      "triggered": false,
+      "detail": "No missing VLAN issues detected"
+    },
+    {
+      "rule_name": "check_missing_route",
+      "triggered": false,
+      "detail": "No missing route issues detected"
+    }
+  ],
+  "C-007": [
+    {
+      "rule_name": "check_duplicate_ip",
+      "triggered": true,
+      "detail": "Duplicate IP detected: 192.168.10.50 (syslog %IP-4-DUPADDR)"
+    },
+    {
+      "rule_name": "check_wrong_mask",
+      "triggered": false,
+      "detail": "No PC subnet mask mismatch detected"
+    },
+    {
+      "rule_name": "check_gateway_mismatch",
+      "triggered": false,
+      "detail": "Default gateway matches router interface IP"
+    },
+    {
+      "rule_name": "check_interface_down",
+      "triggered": false,
+      "detail": "All detected interfaces are up/up"
+    },
+    {
+      "rule_name": "check_missing_vlan",
+      "triggered": false,
+      "detail": "No missing VLAN issues detected"
+    },
+    {
+      "rule_name": "check_missing_route",
+      "triggered": false,
+      "detail": "No missing route issues detected"
+    }
+  ],
+  "C-008": [
+    {
+      "rule_name": "check_duplicate_ip",
+      "triggered": false,
+      "detail": "No duplicate IPs detected"
+    },
+    {
+      "rule_name": "check_wrong_mask",
+      "triggered": true,
+      "detail": "Mismatched PC subnet masks detected in ipconfig: 255.255.240.0, 255.255.255.0"
+    },
+    {
+      "rule_name": "check_gateway_mismatch",
+      "triggered": false,
+      "detail": "Default gateway matches router interface IP"
+    },
+    {
+      "rule_name": "check_interface_down",
+      "triggered": false,
+      "detail": "All detected interfaces are up/up"
+    },
+    {
+      "rule_name": "check_missing_vlan",
+      "triggered": false,
+      "detail": "No missing VLAN issues detected"
+    },
+    {
+      "rule_name": "check_missing_route",
+      "triggered": false,
+      "detail": "No missing route issues detected"
+    }
+  ],
+  "C-009": [
+    {
+      "rule_name": "check_duplicate_ip",
+      "triggered": false,
+      "detail": "No duplicate IPs detected"
+    },
+    {
+      "rule_name": "check_wrong_mask",
+      "triggered": false,
+      "detail": "No PC ipconfig subnet masks found in evidence"
+    },
+    {
+      "rule_name": "check_gateway_mismatch",
+      "triggered": false,
+      "detail": "No default gateway found in evidence to check"
+    },
+    {
+      "rule_name": "check_interface_down",
+      "triggered": false,
+      "detail": "All detected interfaces are up/up"
+    },
+    {
+      "rule_name": "check_missing_vlan",
+      "triggered": false,
+      "detail": "No missing VLAN issues detected"
+    },
+    {
+      "rule_name": "check_missing_route",
+      "triggered": false,
+      "detail": "No missing route issues detected"
+    }
+  ],
+  "C-010": [
+    {
+      "rule_name": "check_duplicate_ip",
+      "triggered": false,
+      "detail": "No duplicate IPs detected"
+    },
+    {
+      "rule_name": "check_wrong_mask",
+      "triggered": false,
+      "detail": "No PC subnet mask mismatch detected"
+    },
+    {
+      "rule_name": "check_gateway_mismatch",
+      "triggered": false,
+      "detail": "No default gateway found in evidence to check"
+    },
+    {
+      "rule_name": "check_interface_down",
+      "triggered": false,
+      "detail": "All detected interfaces are up/up"
+    },
+    {
+      "rule_name": "check_missing_vlan",
+      "triggered": false,
+      "detail": "No missing VLAN issues detected"
+    },
+    {
+      "rule_name": "check_missing_route",
+      "triggered": false,
+      "detail": "No missing route issues detected"
+    }
+  ],
+  "C-011": [
+    {
+      "rule_name": "check_duplicate_ip",
+      "triggered": false,
+      "detail": "No duplicate IPs detected"
+    },
+    {
+      "rule_name": "check_wrong_mask",
+      "triggered": false,
+      "detail": "No PC ipconfig subnet masks found in evidence"
+    },
+    {
+      "rule_name": "check_gateway_mismatch",
+      "triggered": false,
+      "detail": "No default gateway found in evidence to check"
+    },
+    {
+      "rule_name": "check_interface_down",
+      "triggered": false,
+      "detail": "All detected interfaces are up/up"
+    },
+    {
+      "rule_name": "check_missing_vlan",
+      "triggered": false,
+      "detail": "No missing VLAN issues detected"
+    },
+    {
+      "rule_name": "check_missing_route",
+      "triggered": false,
+      "detail": "No missing route issues detected"
+    }
+  ],
+  "C-012": [
+    {
+      "rule_name": "check_duplicate_ip",
+      "triggered": false,
+      "detail": "No duplicate IPs detected"
+    },
+    {
+      "rule_name": "check_wrong_mask",
+      "triggered": false,
+      "detail": "No PC ipconfig subnet masks found in evidence"
+    },
+    {
+      "rule_name": "check_gateway_mismatch",
+      "triggered": false,
+      "detail": "No default gateway found in evidence to check"
+    },
+    {
+      "rule_name": "check_interface_down",
+      "triggered": false,
+      "detail": "All detected interfaces are up/up"
+    },
+    {
+      "rule_name": "check_missing_vlan",
+      "triggered": false,
+      "detail": "No missing VLAN issues detected"
+    },
+    {
+      "rule_name": "check_missing_route",
+      "triggered": false,
+      "detail": "No missing route issues detected"
+    }
+  ],
+  "C-013": [
+    {
+      "rule_name": "check_duplicate_ip",
+      "triggered": false,
+      "detail": "No duplicate IPs detected"
+    },
+    {
+      "rule_name": "check_wrong_mask",
+      "triggered": false,
+      "detail": "No PC ipconfig subnet masks found in evidence"
+    },
+    {
+      "rule_name": "check_gateway_mismatch",
+      "triggered": false,
+      "detail": "No default gateway found in evidence to check"
+    },
+    {
+      "rule_name": "check_interface_down",
+      "triggered": false,
+      "detail": "All detected interfaces are up/up"
+    },
+    {
+      "rule_name": "check_missing_vlan",
+      "triggered": false,
+      "detail": "No missing VLAN issues detected"
+    },
+    {
+      "rule_name": "check_missing_route",
+      "triggered": false,
+      "detail": "No missing route issues detected"
+    }
+  ],
+  "C-014": [
+    {
+      "rule_name": "check_duplicate_ip",
+      "triggered": true,
+      "detail": "Duplicate IP detected: 192.168.1.1 (syslog %IP-4-DUPADDR)"
+    },
+    {
+      "rule_name": "check_wrong_mask",
+      "triggered": false,
+      "detail": "No PC ipconfig subnet masks found in evidence"
+    },
+    {
+      "rule_name": "check_gateway_mismatch",
+      "triggered": false,
+      "detail": "No default gateway found in evidence to check"
+    },
+    {
+      "rule_name": "check_interface_down",
+      "triggered": false,
+      "detail": "All detected interfaces are up/up"
+    },
+    {
+      "rule_name": "check_missing_vlan",
+      "triggered": false,
+      "detail": "No missing VLAN issues detected"
+    },
+    {
+      "rule_name": "check_missing_route",
+      "triggered": false,
+      "detail": "No missing route issues detected"
+    }
+  ],
+  "C-015": [
+    {
+      "rule_name": "check_duplicate_ip",
+      "triggered": false,
+      "detail": "No duplicate IPs detected"
+    },
+    {
+      "rule_name": "check_wrong_mask",
+      "triggered": false,
+      "detail": "No PC subnet mask mismatch detected"
+    },
+    {
+      "rule_name": "check_gateway_mismatch",
+      "triggered": false,
+      "detail": "Default gateway matches router interface IP"
+    },
+    {
+      "rule_name": "check_interface_down",
+      "triggered": false,
+      "detail": "All detected interfaces are up/up"
+    },
+    {
+      "rule_name": "check_missing_vlan",
+      "triggered": false,
+      "detail": "No missing VLAN issues detected"
+    },
+    {
+      "rule_name": "check_missing_route",
+      "triggered": false,
+      "detail": "No missing route issues detected"
+    }
+  ],
+  "C-016": [
+    {
+      "rule_name": "check_duplicate_ip",
+      "triggered": false,
+      "detail": "No duplicate IPs detected"
+    },
+    {
+      "rule_name": "check_wrong_mask",
+      "triggered": false,
+      "detail": "No PC ipconfig subnet masks found in evidence"
+    },
+    {
+      "rule_name": "check_gateway_mismatch",
+      "triggered": false,
+      "detail": "No default gateway found in evidence to check"
+    },
+    {
+      "rule_name": "check_interface_down",
+      "triggered": false,
+      "detail": "All detected interfaces are up/up"
+    },
+    {
+      "rule_name": "check_missing_vlan",
+      "triggered": false,
+      "detail": "No missing VLAN issues detected"
+    },
+    {
+      "rule_name": "check_missing_route",
+      "triggered": false,
+      "detail": "No missing route issues detected"
+    }
+  ],
+  "C-017": [
+    {
+      "rule_name": "check_duplicate_ip",
+      "triggered": false,
+      "detail": "No duplicate IPs detected"
+    },
+    {
+      "rule_name": "check_wrong_mask",
+      "triggered": false,
+      "detail": "No PC ipconfig subnet masks found in evidence"
+    },
+    {
+      "rule_name": "check_gateway_mismatch",
+      "triggered": false,
+      "detail": "No default gateway found in evidence to check"
+    },
+    {
+      "rule_name": "check_interface_down",
+      "triggered": false,
+      "detail": "All detected interfaces are up/up"
+    },
+    {
+      "rule_name": "check_missing_vlan",
+      "triggered": false,
+      "detail": "No missing VLAN issues detected"
+    },
+    {
+      "rule_name": "check_missing_route",
+      "triggered": false,
+      "detail": "No missing route issues detected"
+    }
+  ],
+  "C-018": [
+    {
+      "rule_name": "check_duplicate_ip",
+      "triggered": false,
+      "detail": "No duplicate IPs detected"
+    },
+    {
+      "rule_name": "check_wrong_mask",
+      "triggered": false,
+      "detail": "No PC ipconfig subnet masks found in evidence"
+    },
+    {
+      "rule_name": "check_gateway_mismatch",
+      "triggered": false,
+      "detail": "No default gateway found in evidence to check"
+    },
+    {
+      "rule_name": "check_interface_down",
+      "triggered": false,
+      "detail": "All detected interfaces are up/up"
+    },
+    {
+      "rule_name": "check_missing_vlan",
+      "triggered": false,
+      "detail": "No missing VLAN issues detected"
+    },
+    {
+      "rule_name": "check_missing_route",
+      "triggered": true,
+      "detail": "Gateway of last resort is not set and a destination is unreachable \u2014 likely missing route or default route"
+    }
+  ],
+  "C-019": [
+    {
+      "rule_name": "check_duplicate_ip",
+      "triggered": false,
+      "detail": "No duplicate IPs detected"
+    },
+    {
+      "rule_name": "check_wrong_mask",
+      "triggered": false,
+      "detail": "No PC ipconfig subnet masks found in evidence"
+    },
+    {
+      "rule_name": "check_gateway_mismatch",
+      "triggered": false,
+      "detail": "No default gateway found in evidence to check"
+    },
+    {
+      "rule_name": "check_interface_down",
+      "triggered": false,
+      "detail": "All detected interfaces are up/up"
+    },
+    {
+      "rule_name": "check_missing_vlan",
+      "triggered": false,
+      "detail": "No missing VLAN issues detected"
+    },
+    {
+      "rule_name": "check_missing_route",
+      "triggered": false,
+      "detail": "No missing route issues detected"
+    }
+  ],
+  "C-020": [
+    {
+      "rule_name": "check_duplicate_ip",
+      "triggered": false,
+      "detail": "No duplicate IPs detected"
+    },
+    {
+      "rule_name": "check_wrong_mask",
+      "triggered": false,
+      "detail": "No PC ipconfig subnet masks found in evidence"
+    },
+    {
+      "rule_name": "check_gateway_mismatch",
+      "triggered": false,
+      "detail": "No default gateway found in evidence to check"
+    },
+    {
+      "rule_name": "check_interface_down",
+      "triggered": false,
+      "detail": "All detected interfaces are up/up"
+    },
+    {
+      "rule_name": "check_missing_vlan",
+      "triggered": false,
+      "detail": "No missing VLAN issues detected"
+    },
+    {
+      "rule_name": "check_missing_route",
+      "triggered": true,
+      "detail": "Static route to 10.0.0.0/24 via 172.16.0.5 but next-hop 172.16.0.5 is unreachable"
+    }
+  ],
+  "C-021": [
+    {
+      "rule_name": "check_duplicate_ip",
+      "triggered": false,
+      "detail": "No duplicate IPs detected"
+    },
+    {
+      "rule_name": "check_wrong_mask",
+      "triggered": false,
+      "detail": "No PC ipconfig subnet masks found in evidence"
+    },
+    {
+      "rule_name": "check_gateway_mismatch",
+      "triggered": false,
+      "detail": "No default gateway found in evidence to check"
+    },
+    {
+      "rule_name": "check_interface_down",
+      "triggered": false,
+      "detail": "All detected interfaces are up/up"
+    },
+    {
+      "rule_name": "check_missing_vlan",
+      "triggered": false,
+      "detail": "No missing VLAN issues detected"
+    },
+    {
+      "rule_name": "check_missing_route",
+      "triggered": true,
+      "detail": "Gateway of last resort is not set and a destination is unreachable \u2014 likely missing route or default route"
+    }
+  ],
+  "C-022": [
+    {
+      "rule_name": "check_duplicate_ip",
+      "triggered": false,
+      "detail": "No duplicate IPs detected"
+    },
+    {
+      "rule_name": "check_wrong_mask",
+      "triggered": false,
+      "detail": "No PC ipconfig subnet masks found in evidence"
+    },
+    {
+      "rule_name": "check_gateway_mismatch",
+      "triggered": false,
+      "detail": "No default gateway found in evidence to check"
+    },
+    {
+      "rule_name": "check_interface_down",
+      "triggered": false,
+      "detail": "All detected interfaces are up/up"
+    },
+    {
+      "rule_name": "check_missing_vlan",
+      "triggered": false,
+      "detail": "No missing VLAN issues detected"
+    },
+    {
+      "rule_name": "check_missing_route",
+      "triggered": false,
+      "detail": "No missing route issues detected"
+    }
+  ],
+  "C-023": [
+    {
+      "rule_name": "check_duplicate_ip",
+      "triggered": false,
+      "detail": "No duplicate IPs detected"
+    },
+    {
+      "rule_name": "check_wrong_mask",
+      "triggered": false,
+      "detail": "No PC ipconfig subnet masks found in evidence"
+    },
+    {
+      "rule_name": "check_gateway_mismatch",
+      "triggered": false,
+      "detail": "No default gateway found in evidence to check"
+    },
+    {
+      "rule_name": "check_interface_down",
+      "triggered": false,
+      "detail": "All detected interfaces are up/up"
+    },
+    {
+      "rule_name": "check_missing_vlan",
+      "triggered": false,
+      "detail": "No missing VLAN issues detected"
+    },
+    {
+      "rule_name": "check_missing_route",
+      "triggered": false,
+      "detail": "No missing route issues detected"
+    }
+  ],
+  "C-024": [
+    {
+      "rule_name": "check_duplicate_ip",
+      "triggered": false,
+      "detail": "No duplicate IPs detected"
+    },
+    {
+      "rule_name": "check_wrong_mask",
+      "triggered": false,
+      "detail": "No PC ipconfig subnet masks found in evidence"
+    },
+    {
+      "rule_name": "check_gateway_mismatch",
+      "triggered": false,
+      "detail": "No default gateway found in evidence to check"
+    },
+    {
+      "rule_name": "check_interface_down",
+      "triggered": false,
+      "detail": "All detected interfaces are up/up"
+    },
+    {
+      "rule_name": "check_missing_vlan",
+      "triggered": false,
+      "detail": "No missing VLAN issues detected"
+    },
+    {
+      "rule_name": "check_missing_route",
+      "triggered": false,
+      "detail": "No missing route issues detected"
+    }
+  ],
+  "C-025": [
+    {
+      "rule_name": "check_duplicate_ip",
+      "triggered": false,
+      "detail": "No duplicate IPs detected"
+    },
+    {
+      "rule_name": "check_wrong_mask",
+      "triggered": false,
+      "detail": "No PC ipconfig subnet masks found in evidence"
+    },
+    {
+      "rule_name": "check_gateway_mismatch",
+      "triggered": false,
+      "detail": "No default gateway found in evidence to check"
+    },
+    {
+      "rule_name": "check_interface_down",
+      "triggered": false,
+      "detail": "All detected interfaces are up/up"
+    },
+    {
+      "rule_name": "check_missing_vlan",
+      "triggered": false,
+      "detail": "No missing VLAN issues detected"
+    },
+    {
+      "rule_name": "check_missing_route",
+      "triggered": false,
+      "detail": "No missing route issues detected"
+    }
+  ],
+  "C-026": [
+    {
+      "rule_name": "check_duplicate_ip",
+      "triggered": false,
+      "detail": "No duplicate IPs detected"
+    },
+    {
+      "rule_name": "check_wrong_mask",
+      "triggered": false,
+      "detail": "No PC ipconfig subnet masks found in evidence"
+    },
+    {
+      "rule_name": "check_gateway_mismatch",
+      "triggered": false,
+      "detail": "No default gateway found in evidence to check"
+    },
+    {
+      "rule_name": "check_interface_down",
+      "triggered": false,
+      "detail": "All detected interfaces are up/up"
+    },
+    {
+      "rule_name": "check_missing_vlan",
+      "triggered": false,
+      "detail": "No missing VLAN issues detected"
+    },
+    {
+      "rule_name": "check_missing_route",
+      "triggered": false,
+      "detail": "No missing route issues detected"
+    }
+  ],
+  "C-027": [
+    {
+      "rule_name": "check_duplicate_ip",
+      "triggered": false,
+      "detail": "No duplicate IPs detected"
+    },
+    {
+      "rule_name": "check_wrong_mask",
+      "triggered": false,
+      "detail": "No PC ipconfig subnet masks found in evidence"
+    },
+    {
+      "rule_name": "check_gateway_mismatch",
+      "triggered": false,
+      "detail": "No default gateway found in evidence to check"
+    },
+    {
+      "rule_name": "check_interface_down",
+      "triggered": false,
+      "detail": "All detected interfaces are up/up"
+    },
+    {
+      "rule_name": "check_missing_vlan",
+      "triggered": false,
+      "detail": "No missing VLAN issues detected"
+    },
+    {
+      "rule_name": "check_missing_route",
+      "triggered": false,
+      "detail": "No missing route issues detected"
+    }
+  ],
+  "C-028": [
+    {
+      "rule_name": "check_duplicate_ip",
+      "triggered": false,
+      "detail": "No duplicate IPs detected"
+    },
+    {
+      "rule_name": "check_wrong_mask",
+      "triggered": false,
+      "detail": "No PC ipconfig subnet masks found in evidence"
+    },
+    {
+      "rule_name": "check_gateway_mismatch",
+      "triggered": false,
+      "detail": "No default gateway found in evidence to check"
+    },
+    {
+      "rule_name": "check_interface_down",
+      "triggered": false,
+      "detail": "All detected interfaces are up/up"
+    },
+    {
+      "rule_name": "check_missing_vlan",
+      "triggered": false,
+      "detail": "No missing VLAN issues detected"
+    },
+    {
+      "rule_name": "check_missing_route",
+      "triggered": false,
+      "detail": "No missing route issues detected"
+    }
+  ],
+  "C-029": [
+    {
+      "rule_name": "check_duplicate_ip",
+      "triggered": false,
+      "detail": "No duplicate IPs detected"
+    },
+    {
+      "rule_name": "check_wrong_mask",
+      "triggered": false,
+      "detail": "No PC ipconfig subnet masks found in evidence"
+    },
+    {
+      "rule_name": "check_gateway_mismatch",
+      "triggered": false,
+      "detail": "No default gateway found in evidence to check"
+    },
+    {
+      "rule_name": "check_interface_down",
+      "triggered": false,
+      "detail": "All detected interfaces are up/up"
+    },
+    {
+      "rule_name": "check_missing_vlan",
+      "triggered": false,
+      "detail": "No missing VLAN issues detected"
+    },
+    {
+      "rule_name": "check_missing_route",
+      "triggered": false,
+      "detail": "No missing route issues detected"
+    }
+  ],
+  "C-030": [
+    {
+      "rule_name": "check_duplicate_ip",
+      "triggered": false,
+      "detail": "No duplicate IPs detected"
+    },
+    {
+      "rule_name": "check_wrong_mask",
+      "triggered": false,
+      "detail": "No PC ipconfig subnet masks found in evidence"
+    },
+    {
+      "rule_name": "check_gateway_mismatch",
+      "triggered": false,
+      "detail": "No default gateway found in evidence to check"
+    },
+    {
+      "rule_name": "check_interface_down",
+      "triggered": false,
+      "detail": "All detected interfaces are up/up"
+    },
+    {
+      "rule_name": "check_missing_vlan",
+      "triggered": false,
+      "detail": "No missing VLAN issues detected"
+    },
+    {
+      "rule_name": "check_missing_route",
+      "triggered": false,
+      "detail": "No missing route issues detected"
+    }
+  ]
+}

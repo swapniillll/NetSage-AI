@@ -1,0 +1,612 @@
+{
+  "C-001": {
+    "raw_response": "{\n  \"root_cause\": \"Insufficient evidence to determine a definitive root cause for why the PC fails to ping its default gateway 192.168.1.1. The provided outputs only show basic VLAN and MAC address table information for SW1, lacking interface status, IP configuration, and router information.\",\n  \"confidence\": 0.2,\n  \"osi_layer\": \"Unknown\",\n  \"evidence\": [\n    \"SW1# show vlan brief lists default, users, and servers VLANs but provides no interface configuration details for the connected PC port.\",\n    \"SW1# show mac address-table displays dynamic MAC address 0001.0001.0001 on port Fa0/1 in VLAN 1.\"\n  ],\n  \"next_command\": \"show interfaces Fa0/1 switchport\",\n  \"fix_steps\": [\n    \"Execute 'show interfaces Fa0/1 switchport' and 'show ip interface brief' to check port status, VLAN assignment, and interface connectivity.\",\n    \"Verify that the PC's IP address and subnet mask match the gateway's subnet configuration.\"\n  ]\n}",
+    "parsed_diagnosis": {
+      "root_cause": "Insufficient evidence to determine a definitive root cause for why the PC fails to ping its default gateway 192.168.1.1. The provided outputs only show basic VLAN and MAC address table information for SW1, lacking interface status, IP configuration, and router information.",
+      "confidence": 0.2,
+      "osi_layer": "Unknown",
+      "evidence": [
+        "SW1# show vlan brief lists default, users, and servers VLANs but provides no interface configuration details for the connected PC port.",
+        "SW1# show mac address-table displays dynamic MAC address 0001.0001.0001 on port Fa0/1 in VLAN 1."
+      ],
+      "next_command": "show interfaces Fa0/1 switchport",
+      "fix_steps": [
+        "Execute 'show interfaces Fa0/1 switchport' and 'show ip interface brief' to check port status, VLAN assignment, and interface connectivity.",
+        "Verify that the PC's IP address and subnet mask match the gateway's subnet configuration."
+      ]
+    },
+    "prompt_version": "v1",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "C-002": {
+    "raw_response": "{\n  \"root_cause\": \"Insufficient evidence to determine a definitive root cause. The trunk between SW1 and SW2 only allows VLAN 20 (and VLAN 1), but hosts are trying to communicate across VLAN 10. However, the exact VLAN configuration on SW2 is not provided.\",\n  \"confidence\": 0.4,\n  \"osi_layer\": \"Layer 2 - Data Link\",\n  \"evidence\": [\n    \"SW1# show interfaces trunk indicates that Gi0/1 has allowed and active VLANs limited to 1 and 20.\"\n  ],\n  \"next_command\": \"show interfaces trunk\",\n  \"fix_steps\": [\n    \"Log into SW2 and run 'show interfaces trunk' and 'show vlan brief' to verify its trunk allowed VLANs and active VLAN database.\",\n    \"Ensure VLAN 10 is added to the allowed VLAN list on the trunk links connecting SW1 and SW2 if inter-switch communication for VLAN 10 is required.\"\n  ]\n}",
+    "parsed_diagnosis": {
+      "root_cause": "Insufficient evidence to determine a definitive root cause. The trunk between SW1 and SW2 only allows VLAN 20 (and VLAN 1), but hosts are trying to communicate across VLAN 10. However, the exact VLAN configuration on SW2 is not provided.",
+      "confidence": 0.4,
+      "osi_layer": "Layer 2 - Data Link",
+      "evidence": [
+        "SW1# show interfaces trunk indicates that Gi0/1 has allowed and active VLANs limited to 1 and 20."
+      ],
+      "next_command": "show interfaces trunk",
+      "fix_steps": [
+        "Log into SW2 and run 'show interfaces trunk' and 'show vlan brief' to verify its trunk allowed VLANs and active VLAN database.",
+        "Ensure VLAN 10 is added to the allowed VLAN list on the trunk links connecting SW1 and SW2 if inter-switch communication for VLAN 10 is required."
+      ]
+    },
+    "prompt_version": "v1",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "C-003": {
+    "raw_response": "{\n  \"root_cause\": \"Insufficient evidence to determine a definitive root cause. The subinterface for VLAN 20 (GigabitEthernet0/0.20) lacks an IP address configuration in the provided router output.\",\n  \"confidence\": 0.4,\n  \"osi_layer\": \"Unknown\",\n  \"evidence\": [\n    \"R1# show running-config interface GigabitEthernet0/0.20 shows 'no ip address' configured.\",\n    \"R1# show ip interface brief shows GigabitEthernet0/0.20 is up/up but has unassigned IP status.\"\n  ],\n  \"next_command\": \"show running-config\",\n  \"fix_steps\": [\n    \"Verify the intended IP addressing scheme for VLAN 20.\",\n    \"Configure an appropriate IP address and subnet mask on subinterface GigabitEthernet0/0.20 using the 'ip address' command.\",\n    \"Ensure dot1q encapsulation is properly mapped to VLAN 20 on the subinterface.\"\n  ]\n}",
+    "parsed_diagnosis": {
+      "root_cause": "Insufficient evidence to determine a definitive root cause. The subinterface for VLAN 20 (GigabitEthernet0/0.20) lacks an IP address configuration in the provided router output.",
+      "confidence": 0.4,
+      "osi_layer": "Unknown",
+      "evidence": [
+        "R1# show running-config interface GigabitEthernet0/0.20 shows 'no ip address' configured.",
+        "R1# show ip interface brief shows GigabitEthernet0/0.20 is up/up but has unassigned IP status."
+      ],
+      "next_command": "show running-config",
+      "fix_steps": [
+        "Verify the intended IP addressing scheme for VLAN 20.",
+        "Configure an appropriate IP address and subnet mask on subinterface GigabitEthernet0/0.20 using the 'ip address' command.",
+        "Ensure dot1q encapsulation is properly mapped to VLAN 20 on the subinterface."
+      ]
+    },
+    "prompt_version": "v1",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "C-004": {
+    "raw_response": "{\n  \"root_cause\": \"A native VLAN mismatch exists between SW1 and SW2 on interface Gi0/1, where SW1 is configured with native VLAN 1 and SW2 is configured with native VLAN 99.\",\n  \"confidence\": 0.95,\n  \"osi_layer\": \"Layer 2 - Data Link\",\n  \"evidence\": [\n    \"SW1# show interfaces Gi0/1 trunk indicates Native vlan is 1.\",\n    \"SW2# show interfaces Gi0/1 trunk indicates Native vlan is 99.\",\n    \"%CDP-4-NATIVE_VLAN_MISMATCH: Native VLAN mismatch discovered on Gi0/1 (1) with SW2 Gi0/1 (99).\"\n  ],\n  \"next_command\": \"show cdp neighbors detail\",\n  \"fix_steps\": [\n    \"Access global configuration mode on SW1 or SW2.\",\n    \"Navigate to the trunk interface Gi0/1.\",\n    \"Configure the native VLAN to match on both switches using the command 'switchport trunk native vlan <vlan-id>'.\"\n  ]\n}",
+    "parsed_diagnosis": {
+      "root_cause": "A native VLAN mismatch exists between SW1 and SW2 on interface Gi0/1, where SW1 is configured with native VLAN 1 and SW2 is configured with native VLAN 99.",
+      "confidence": 0.95,
+      "osi_layer": "Layer 2 - Data Link",
+      "evidence": [
+        "SW1# show interfaces Gi0/1 trunk indicates Native vlan is 1.",
+        "SW2# show interfaces Gi0/1 trunk indicates Native vlan is 99.",
+        "%CDP-4-NATIVE_VLAN_MISMATCH: Native VLAN mismatch discovered on Gi0/1 (1) with SW2 Gi0/1 (99)."
+      ],
+      "next_command": "show cdp neighbors detail",
+      "fix_steps": [
+        "Access global configuration mode on SW1 or SW2.",
+        "Navigate to the trunk interface Gi0/1.",
+        "Configure the native VLAN to match on both switches using the command 'switchport trunk native vlan <vlan-id>'."
+      ]
+    },
+    "prompt_version": "v1",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "C-005": {
+    "raw_response": "{\n  \"root_cause\": \"Port Fa0/5 on SW1 is configured for access VLAN 30, but VLAN 30 does not exist in the switch's active VLAN database.\",\n  \"confidence\": 0.95,\n  \"osi_layer\": \"Layer 2 - Data Link\",\n  \"evidence\": [\n    \"SW1# show vlan brief shows that VLAN 30 is missing from the active VLAN list (only VLANs 1, 10, and 20 are present).\",\n    \"SW1# show interfaces Fa0/5 switchport indicates that the Access VLAN is set to 30.\"\n  ],\n  \"next_command\": \"show mac address-table interface Fa0/5\",\n  \"fix_steps\": [\n    \"Enter global configuration mode on SW1.\",\n    \"Create VLAN 30 using the command 'vlan 30'.\",\n    \"Verify that the port becomes operational and connectivity is restored.\"\n  ]\n}",
+    "parsed_diagnosis": {
+      "root_cause": "Port Fa0/5 on SW1 is configured for access VLAN 30, but VLAN 30 does not exist in the switch's active VLAN database.",
+      "confidence": 0.95,
+      "osi_layer": "Layer 2 - Data Link",
+      "evidence": [
+        "SW1# show vlan brief shows that VLAN 30 is missing from the active VLAN list (only VLANs 1, 10, and 20 are present).",
+        "SW1# show interfaces Fa0/5 switchport indicates that the Access VLAN is set to 30."
+      ],
+      "next_command": "show mac address-table interface Fa0/5",
+      "fix_steps": [
+        "Enter global configuration mode on SW1.",
+        "Create VLAN 30 using the command 'vlan 30'.",
+        "Verify that the port becomes operational and connectivity is restored."
+      ]
+    },
+    "prompt_version": "v1",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "C-006": {
+    "raw_response": "{\n  \"root_cause\": \"PC1 has an incorrect default gateway configured (192.168.1.100), which does not match the actual router interface IP address (192.168.1.1). This prevents PC1 from reaching remote networks.\",\n  \"confidence\": 0.95,\n  \"osi_layer\": \"Layer 3 - Network\",\n  \"evidence\": [\n    \"PC1> ipconfig shows the Default Gateway is set to 192.168.1.100.\",\n    \"R1# show ip interface brief shows GigabitEthernet0/0 has the IP-Address 192.168.1.1.\",\n    \"Rule check_gateway_mismatch triggered stating that host default gateway 192.168.1.100 does not match any router interface IP (192.168.1.1).\"\n  ],\n  \"next_command\": \"show ip route\",\n  \"fix_steps\": [\n    \"Access the IP configuration settings on PC1.\",\n    \"Update the Default Gateway from 192.168.1.100 to 192.168.1.1.\",\n    \"Test connectivity to a remote network to verify the fix.\"\n  ]\n}",
+    "parsed_diagnosis": {
+      "root_cause": "PC1 has an incorrect default gateway configured (192.168.1.100), which does not match the actual router interface IP address (192.168.1.1). This prevents PC1 from reaching remote networks.",
+      "confidence": 0.95,
+      "osi_layer": "Layer 3 - Network",
+      "evidence": [
+        "PC1> ipconfig shows the Default Gateway is set to 192.168.1.100.",
+        "R1# show ip interface brief shows GigabitEthernet0/0 has the IP-Address 192.168.1.1.",
+        "Rule check_gateway_mismatch triggered stating that host default gateway 192.168.1.100 does not match any router interface IP (192.168.1.1)."
+      ],
+      "next_command": "show ip route",
+      "fix_steps": [
+        "Access the IP configuration settings on PC1.",
+        "Update the Default Gateway from 192.168.1.100 to 192.168.1.1.",
+        "Test connectivity to a remote network to verify the fix."
+      ]
+    },
+    "prompt_version": "v1",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "C-007": {
+    "raw_response": "{\n  \"root_cause\": \"A duplicate IP address conflict exists on the network for IP 192.168.10.50, which is assigned to both PC1 and Server1's FastEthernet0/0 interface.\",\n  \"confidence\": 0.95,\n  \"osi_layer\": \"Layer 3 - Network\",\n  \"evidence\": [\n    \"PC1> ipconfig shows IP Address configured as 192.168.10.50.\",\n    \"Server1# show ip interface brief shows FastEthernet0/0 assigned IP-Address 192.168.10.50.\",\n    \"%IP-4-DUPADDR log indicates duplicate address 192.168.10.50 sourced by 0001.0001.0001.\"\n  ],\n  \"next_command\": \"show arp\",\n  \"fix_steps\": [\n    \"Identify the device associated with MAC address 0001.0001.0001.\",\n    \"Reconfigure either PC1 or Server1 to use a unique IP address within the 192.168.10.0/24 subnet.\",\n    \"Verify connectivity after updating the conflicting IP configuration.\"\n  ]\n}",
+    "parsed_diagnosis": {
+      "root_cause": "A duplicate IP address conflict exists on the network for IP 192.168.10.50, which is assigned to both PC1 and Server1's FastEthernet0/0 interface.",
+      "confidence": 0.95,
+      "osi_layer": "Layer 3 - Network",
+      "evidence": [
+        "PC1> ipconfig shows IP Address configured as 192.168.10.50.",
+        "Server1# show ip interface brief shows FastEthernet0/0 assigned IP-Address 192.168.10.50.",
+        "%IP-4-DUPADDR log indicates duplicate address 192.168.10.50 sourced by 0001.0001.0001."
+      ],
+      "next_command": "show arp",
+      "fix_steps": [
+        "Identify the device associated with MAC address 0001.0001.0001.",
+        "Reconfigure either PC1 or Server1 to use a unique IP address within the 192.168.10.0/24 subnet.",
+        "Verify connectivity after updating the conflicting IP configuration."
+      ]
+    },
+    "prompt_version": "v1",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "C-008": {
+    "raw_response": "{\n  \"root_cause\": \"Insufficient evidence to determine a definitive root cause for the ping failure. The provided evidence only shows IP configurations with mismatched subnet masks between PC1 and PC2, but lacks switch port, VLAN, or routing interface command outputs.\",\n  \"confidence\": 0.3,\n  \"osi_layer\": \"Unknown\",\n  \"evidence\": [\n    \"PC1> ipconfig shows IP Address 192.168.1.10 with Subnet Mask 255.255.255.0.\",\n    \"PC2> ipconfig shows IP Address 192.168.1.20 with Subnet Mask 255.255.240.0.\",\n    \"Rule-checker check_wrong_mask triggered, indicating mismatched PC subnet masks.\"\n  ],\n  \"next_command\": \"show vlan brief\",\n  \"fix_steps\": [\n    \"Run 'show vlan brief' on SW1 to verify switchport assignments and VLAN existence.\",\n    \"Verify and align the subnet masks on PC1 and PC2 to ensure they are on the same local subnet if they are intended to communicate directly at Layer 2.\"\n  ]\n}",
+    "parsed_diagnosis": {
+      "root_cause": "Insufficient evidence to determine a definitive root cause for the ping failure. The provided evidence only shows IP configurations with mismatched subnet masks between PC1 and PC2, but lacks switch port, VLAN, or routing interface command outputs.",
+      "confidence": 0.3,
+      "osi_layer": "Unknown",
+      "evidence": [
+        "PC1> ipconfig shows IP Address 192.168.1.10 with Subnet Mask 255.255.255.0.",
+        "PC2> ipconfig shows IP Address 192.168.1.20 with Subnet Mask 255.255.240.0.",
+        "Rule-checker check_wrong_mask triggered, indicating mismatched PC subnet masks."
+      ],
+      "next_command": "show vlan brief",
+      "fix_steps": [
+        "Run 'show vlan brief' on SW1 to verify switchport assignments and VLAN existence.",
+        "Verify and align the subnet masks on PC1 and PC2 to ensure they are on the same local subnet if they are intended to communicate directly at Layer 2."
+      ]
+    },
+    "prompt_version": "v1",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "C-009": {
+    "raw_response": "{\n  \"root_cause\": \"The router interface GigabitEthernet0/0 is configured with an IP address (192.168.2.1/24) that does not match the expected subnet of the hosts (192.168.1.0/24).\",\n  \"confidence\": 0.95,\n  \"osi_layer\": \"Layer 3 - Network\",\n  \"evidence\": [\n    \"Topology notes state that R1 Gi0/0 is the gateway for the 192.168.1.0/24 LAN.\",\n    \"R1# show ip interface brief displays GigabitEthernet0/0 with IP address 192.168.2.1.\",\n    \"R1# show running-config interface GigabitEthernet0/0 shows 'ip address 192.168.2.1 255.255.255.0'.\"\n  ],\n  \"next_command\": \"show ip route\",\n  \"fix_steps\": [\n    \"Access global configuration mode on R1.\",\n    \"Navigate to interface GigabitEthernet0/0 configuration mode.\",\n    \"Correct the IP address to belong to the 192.168.1.0/24 subnet (e.g., ip address 192.168.1.1 255.255.255.0).\"\n  ]\n}",
+    "parsed_diagnosis": {
+      "root_cause": "The router interface GigabitEthernet0/0 is configured with an IP address (192.168.2.1/24) that does not match the expected subnet of the hosts (192.168.1.0/24).",
+      "confidence": 0.95,
+      "osi_layer": "Layer 3 - Network",
+      "evidence": [
+        "Topology notes state that R1 Gi0/0 is the gateway for the 192.168.1.0/24 LAN.",
+        "R1# show ip interface brief displays GigabitEthernet0/0 with IP address 192.168.2.1.",
+        "R1# show running-config interface GigabitEthernet0/0 shows 'ip address 192.168.2.1 255.255.255.0'."
+      ],
+      "next_command": "show ip route",
+      "fix_steps": [
+        "Access global configuration mode on R1.",
+        "Navigate to interface GigabitEthernet0/0 configuration mode.",
+        "Correct the IP address to belong to the 192.168.1.0/24 subnet (e.g., ip address 192.168.1.1 255.255.255.0)."
+      ]
+    },
+    "prompt_version": "v1",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "C-010": {
+    "raw_response": "{\n  \"root_cause\": \"Insufficient evidence to determine a definitive root cause. The supplied evidence shows PC1 has an unconfigured IP address (0.0.0.0), but there is no further information regarding DHCP server status or switch configurations beyond interface status.\",\n  \"confidence\": 0.25,\n  \"osi_layer\": \"Unknown\",\n  \"evidence\": [\n    \"PC1> ipconfig shows IP Address as 0.0.0.0, Subnet Mask as 0.0.0.0, and no Default Gateway.\",\n    \"SW1# show interfaces Fa0/3 status confirms the port is connected in VLAN 10.\"\n  ],\n  \"next_command\": \"show running-config interface Fa0/3\",\n  \"fix_steps\": [\n    \"Verify whether PC1 is configured for static IP addressing or DHCP.\",\n    \"Ensure the DHCP server is operational and reachable if PC1 relies on DHCP to obtain an IP address.\"\n  ]\n}",
+    "parsed_diagnosis": {
+      "root_cause": "Insufficient evidence to determine a definitive root cause. The supplied evidence shows PC1 has an unconfigured IP address (0.0.0.0), but there is no further information regarding DHCP server status or switch configurations beyond interface status.",
+      "confidence": 0.25,
+      "osi_layer": "Unknown",
+      "evidence": [
+        "PC1> ipconfig shows IP Address as 0.0.0.0, Subnet Mask as 0.0.0.0, and no Default Gateway.",
+        "SW1# show interfaces Fa0/3 status confirms the port is connected in VLAN 10."
+      ],
+      "next_command": "show running-config interface Fa0/3",
+      "fix_steps": [
+        "Verify whether PC1 is configured for static IP addressing or DHCP.",
+        "Ensure the DHCP server is operational and reachable if PC1 relies on DHCP to obtain an IP address."
+      ]
+    },
+    "prompt_version": "v1",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "C-011": {
+    "raw_response": "{\n  \"root_cause\": \"The DHCP pool default-router is misconfigured with IP address 192.168.2.1, which does not match the router's actual interface IP address 192.168.1.1 on GigabitEthernet0/0.\",\n  \"confidence\": 0.95,\n  \"osi_layer\": \"Layer 3 - Network\",\n  \"evidence\": [\n    \"R1# show running-config | section dhcp shows the default-router configured as 192.168.2.1 under ip dhcp pool LAN.\",\n    \"R1# show ip interface brief shows GigabitEthernet0/0 has IP-Address 192.168.1.1.\"\n  ],\n  \"next_command\": \"show ip dhcp binding\",\n  \"fix_steps\": [\n    \"Enter global configuration mode on R1.\",\n    \"Access the DHCP pool configuration using 'ip dhcp pool LAN'.\",\n    \"Correct the default router command to 'default-router 192.168.1.1'.\"\n  ]\n}",
+    "parsed_diagnosis": {
+      "root_cause": "The DHCP pool default-router is misconfigured with IP address 192.168.2.1, which does not match the router's actual interface IP address 192.168.1.1 on GigabitEthernet0/0.",
+      "confidence": 0.95,
+      "osi_layer": "Layer 3 - Network",
+      "evidence": [
+        "R1# show running-config | section dhcp shows the default-router configured as 192.168.2.1 under ip dhcp pool LAN.",
+        "R1# show ip interface brief shows GigabitEthernet0/0 has IP-Address 192.168.1.1."
+      ],
+      "next_command": "show ip dhcp binding",
+      "fix_steps": [
+        "Enter global configuration mode on R1.",
+        "Access the DHCP pool configuration using 'ip dhcp pool LAN'.",
+        "Correct the default router command to 'default-router 192.168.1.1'."
+      ]
+    },
+    "prompt_version": "v1",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "C-012": {
+    "raw_response": "{\n  \"root_cause\": \"Insufficient evidence to determine a definitive root cause for why new clients fail to obtain an IP address via DHCP, as the DHCP pool shows all 5 expected addresses are currently leased and no further device or switch configurations are provided.\",\n  \"confidence\": 0.4,\n  \"osi_layer\": \"Layer 3 - Network / DHCP\",\n  \"evidence\": [\n    \"R1# show ip dhcp pool shows that the Pool LAN has 5 total addresses and all 5 leased addresses are in use.\",\n    \"R1# show ip dhcp binding lists 5 active leases from 192.168.1.10 through 192.168.1.14.\"\n  ],\n  \"next_command\": \"show ip dhcp conflict\",\n  \"fix_steps\": [\n    \"Run 'show ip dhcp conflict' on R1 to check for any address conflicts.\",\n    \"Expand the DHCP pool size if additional clients need to be supported.\"\n  ]\n}",
+    "parsed_diagnosis": {
+      "root_cause": "Insufficient evidence to determine a definitive root cause for why new clients fail to obtain an IP address via DHCP, as the DHCP pool shows all 5 expected addresses are currently leased and no further device or switch configurations are provided.",
+      "confidence": 0.4,
+      "osi_layer": "Layer 3 - Network / DHCP",
+      "evidence": [
+        "R1# show ip dhcp pool shows that the Pool LAN has 5 total addresses and all 5 leased addresses are in use.",
+        "R1# show ip dhcp binding lists 5 active leases from 192.168.1.10 through 192.168.1.14."
+      ],
+      "next_command": "show ip dhcp conflict",
+      "fix_steps": [
+        "Run 'show ip dhcp conflict' on R1 to check for any address conflicts.",
+        "Expand the DHCP pool size if additional clients need to be supported."
+      ]
+    },
+    "prompt_version": "v1",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "C-013": {
+    "raw_response": "{\n  \"root_cause\": \"Insufficient evidence to determine why clients on VLAN 20 are not receiving DHCP addresses. The DHCP pool is configured, but there is no evidence showing a DHCP helper-address configured on the VLAN 20 subinterface or confirming if a DHCP server is active on VLAN 10.\",\n  \"confidence\": 0.3,\n  \"osi_layer\": \"Unknown\",\n  \"evidence\": [\n    \"R1# show running-config interface GigabitEthernet0/0.20 shows the subinterface configuration lacks a 'ip helper-address' command.\",\n    \"R1# show ip dhcp pool shows pool LAN20 has 0 leased addresses, but lacks details on whether the DHCP service is running or reachable.\"\n  ],\n  \"next_command\": \"show running-config\",\n  \"fix_steps\": [\n    \"Examine the full running configuration of R1 to verify DHCP service or helper-address configuration.\",\n    \"Verify that the DHCP server on VLAN 10 is operational and reachable from R1.\"\n  ]\n}",
+    "parsed_diagnosis": {
+      "root_cause": "Insufficient evidence to determine why clients on VLAN 20 are not receiving DHCP addresses. The DHCP pool is configured, but there is no evidence showing a DHCP helper-address configured on the VLAN 20 subinterface or confirming if a DHCP server is active on VLAN 10.",
+      "confidence": 0.3,
+      "osi_layer": "Unknown",
+      "evidence": [
+        "R1# show running-config interface GigabitEthernet0/0.20 shows the subinterface configuration lacks a 'ip helper-address' command.",
+        "R1# show ip dhcp pool shows pool LAN20 has 0 leased addresses, but lacks details on whether the DHCP service is running or reachable."
+      ],
+      "next_command": "show running-config",
+      "fix_steps": [
+        "Examine the full running configuration of R1 to verify DHCP service or helper-address configuration.",
+        "Verify that the DHCP server on VLAN 10 is operational and reachable from R1."
+      ]
+    },
+    "prompt_version": "v1",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "C-014": {
+    "raw_response": "{\n  \"root_cause\": \"A duplicate IP address conflict is occurring on the network for IP 192.168.1.1, which is assigned to the gateway interface GigabitEthernet0/0 and also found in DHCP bindings.\",\n  \"confidence\": 0.95,\n  \"osi_layer\": \"Layer 3 - Network\",\n  \"evidence\": [\n    \"%IP-4-DUPADDR: Duplicate address 192.168.1.1 on GigabitEthernet0/0\",\n    \"R1# show ip dhcp binding shows IP address 192.168.1.1 bound to client ID 0001.0001.000A\",\n    \"R1# show ip interface brief shows GigabitEthernet0/0 is configured with IP 192.168.1.1\"\n  ],\n  \"next_command\": \"show arp\",\n  \"fix_steps\": [\n    \"Identify the device or host using the MAC address associated with the conflicting IP lease.\",\n    \"Exclude the gateway IP address (192.168.1.1) from the active DHCP pool range using 'ip dhcp excluded-address 192.168.1.1'.\",\n    \"Clear the DHCP binding for the conflicting address using 'clear ip dhcp binding 192.168.1.1'.\"\n  ]\n}",
+    "parsed_diagnosis": {
+      "root_cause": "A duplicate IP address conflict is occurring on the network for IP 192.168.1.1, which is assigned to the gateway interface GigabitEthernet0/0 and also found in DHCP bindings.",
+      "confidence": 0.95,
+      "osi_layer": "Layer 3 - Network",
+      "evidence": [
+        "%IP-4-DUPADDR: Duplicate address 192.168.1.1 on GigabitEthernet0/0",
+        "R1# show ip dhcp binding shows IP address 192.168.1.1 bound to client ID 0001.0001.000A",
+        "R1# show ip interface brief shows GigabitEthernet0/0 is configured with IP 192.168.1.1"
+      ],
+      "next_command": "show arp",
+      "fix_steps": [
+        "Identify the device or host using the MAC address associated with the conflicting IP lease.",
+        "Exclude the gateway IP address (192.168.1.1) from the active DHCP pool range using 'ip dhcp excluded-address 192.168.1.1'.",
+        "Clear the DHCP binding for the conflicting address using 'clear ip dhcp binding 192.168.1.1'."
+      ]
+    },
+    "prompt_version": "v1",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "C-015": {
+    "raw_response": "{\n  \"root_cause\": \"Insufficient evidence to determine a definitive root cause. While the PC cannot reach the DNS server at 192.168.1.50 or resolve domain names, no switch, router, or server configuration outputs have been provided to identify why the DNS server is unreachable.\",\n  \"confidence\": 0.2,\n  \"osi_layer\": \"Unknown\",\n  \"evidence\": [\n    \"PC1> ipconfig /all shows the configured DNS Server is 192.168.1.50.\",\n    \"PC1> ping 192.168.1.50 results in a Request timed out.\",\n    \"PC1> nslookup www.example.com results in a DNS request timed out.\"\n  ],\n  \"next_command\": \"show ip interface brief\",\n  \"fix_steps\": [\n    \"Verify network device connectivity and configuration using diagnostic commands on routers and switches.\",\n    \"Ensure the DNS server is online, correctly addressed, and accessible from the 192.168.1.0/24 network.\"\n  ]\n}",
+    "parsed_diagnosis": {
+      "root_cause": "Insufficient evidence to determine a definitive root cause. While the PC cannot reach the DNS server at 192.168.1.50 or resolve domain names, no switch, router, or server configuration outputs have been provided to identify why the DNS server is unreachable.",
+      "confidence": 0.2,
+      "osi_layer": "Unknown",
+      "evidence": [
+        "PC1> ipconfig /all shows the configured DNS Server is 192.168.1.50.",
+        "PC1> ping 192.168.1.50 results in a Request timed out.",
+        "PC1> nslookup www.example.com results in a DNS request timed out."
+      ],
+      "next_command": "show ip interface brief",
+      "fix_steps": [
+        "Verify network device connectivity and configuration using diagnostic commands on routers and switches.",
+        "Ensure the DNS server is online, correctly addressed, and accessible from the 192.168.1.0/24 network."
+      ]
+    },
+    "prompt_version": "v1",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "C-016": {
+    "raw_response": "{\n  \"root_cause\": \"The DNS server service is not running or listening on port 53, as evidenced by the lack of active netstat output for port 53 on Server1, while IP connectivity between PC1 and Server1 is fully functional.\",\n  \"confidence\": 0.95,\n  \"osi_layer\": \"Layer 7 - Application\",\n  \"evidence\": [\n    \"PC1 successfully pings the DNS server IP 192.168.1.5.\",\n    \"PC1 nslookup command to 192.168.1.5 times out with 'DNS request timed out.'\",\n    \"Server1# netstat -an | include :53 produces no output, indicating no process is listening on port 53.\"\n  ],\n  \"next_command\": \"show running-config\",\n  \"fix_steps\": [\n    \"Log into Server1 and verify the DNS server software/service status.\",\n    \"Start or restart the DNS server service to ensure it listens on port 53.\",\n    \"Verify port 53 is active using netstat or equivalent OS commands.\"\n  ]\n}",
+    "parsed_diagnosis": {
+      "root_cause": "The DNS server service is not running or listening on port 53, as evidenced by the lack of active netstat output for port 53 on Server1, while IP connectivity between PC1 and Server1 is fully functional.",
+      "confidence": 0.95,
+      "osi_layer": "Layer 7 - Application",
+      "evidence": [
+        "PC1 successfully pings the DNS server IP 192.168.1.5.",
+        "PC1 nslookup command to 192.168.1.5 times out with 'DNS request timed out.'",
+        "Server1# netstat -an | include :53 produces no output, indicating no process is listening on port 53."
+      ],
+      "next_command": "show running-config",
+      "fix_steps": [
+        "Log into Server1 and verify the DNS server software/service status.",
+        "Start or restart the DNS server service to ensure it listens on port 53.",
+        "Verify port 53 is active using netstat or equivalent OS commands."
+      ]
+    },
+    "prompt_version": "v1",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "C-017": {
+    "raw_response": "{\n  \"root_cause\": \"The DHCP server is distributing an incorrect DNS server IP address (10.0.0.99) to clients, while the actual operational DNS server is located at 10.0.0.53.\",\n  \"confidence\": 0.95,\n  \"osi_layer\": \"Layer 3 - Network / Application\",\n  \"evidence\": [\n    \"R1# show running-config | section dhcp shows the DHCP pool is configured with 'dns-server 10.0.0.99'.\",\n    \"PC1> ipconfig /all confirms the client received the DNS server address 10.0.0.99.\",\n    \"PC1> ping 10.0.0.99 results in 'Request timed out'.\",\n    \"PC1> ping 10.0.0.53 successfully receives a 'Reply from 10.0.0.53' response.\"\n  ],\n  \"next_command\": \"show ip dhcp binding\",\n  \"fix_steps\": [\n    \"Access global configuration mode on R1.\",\n    \"Enter the DHCP pool configuration mode using 'ip dhcp pool LAN'.\",\n    \"Correct the DNS server IP using the command 'dns-server 10.0.0.53'.\",\n    \"Release and renew the IP configuration on the client using 'ipconfig /renew' to pick up the updated DNS server.\"\n  ]\n}",
+    "parsed_diagnosis": {
+      "root_cause": "The DHCP server is distributing an incorrect DNS server IP address (10.0.0.99) to clients, while the actual operational DNS server is located at 10.0.0.53.",
+      "confidence": 0.95,
+      "osi_layer": "Layer 3 - Network / Application",
+      "evidence": [
+        "R1# show running-config | section dhcp shows the DHCP pool is configured with 'dns-server 10.0.0.99'.",
+        "PC1> ipconfig /all confirms the client received the DNS server address 10.0.0.99.",
+        "PC1> ping 10.0.0.99 results in 'Request timed out'.",
+        "PC1> ping 10.0.0.53 successfully receives a 'Reply from 10.0.0.53' response."
+      ],
+      "next_command": "show ip dhcp binding",
+      "fix_steps": [
+        "Access global configuration mode on R1.",
+        "Enter the DHCP pool configuration mode using 'ip dhcp pool LAN'.",
+        "Correct the DNS server IP using the command 'dns-server 10.0.0.53'.",
+        "Release and renew the IP configuration on the client using 'ipconfig /renew' to pick up the updated DNS server."
+      ]
+    },
+    "prompt_version": "v1",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "C-018": {
+    "raw_response": "{\n  \"root_cause\": \"R1 lacks a routing entry or default gateway to reach the remote 10.0.0.0/24 network.\",\n  \"confidence\": 0.9,\n  \"osi_layer\": \"Layer 3 - Network\",\n  \"evidence\": [\n    \"R1# show ip route indicates that the gateway of last resort is not set and there is no routing entry for the 10.0.0.0/24 network.\",\n    \"R1# ping 10.0.0.1 results in '% Destination host unreachable'.\"\n  ],\n  \"next_command\": \"show ip route\",\n  \"fix_steps\": [\n    \"Enter global configuration mode on R1.\",\n    \"Configure a static route to reach the 10.0.0.0/24 network via the next-hop IP on the serial link (e.g., 'ip route 10.0.0.0 255.255.255.0 172.16.0.2') or set a default route.\",\n    \"Verify connectivity to 10.0.0.1 using the ping command.\"\n  ]\n}",
+    "parsed_diagnosis": {
+      "root_cause": "R1 lacks a routing entry or default gateway to reach the remote 10.0.0.0/24 network.",
+      "confidence": 0.9,
+      "osi_layer": "Layer 3 - Network",
+      "evidence": [
+        "R1# show ip route indicates that the gateway of last resort is not set and there is no routing entry for the 10.0.0.0/24 network.",
+        "R1# ping 10.0.0.1 results in '% Destination host unreachable'."
+      ],
+      "next_command": "show ip route",
+      "fix_steps": [
+        "Enter global configuration mode on R1.",
+        "Configure a static route to reach the 10.0.0.0/24 network via the next-hop IP on the serial link (e.g., 'ip route 10.0.0.0 255.255.255.0 172.16.0.2') or set a default route.",
+        "Verify connectivity to 10.0.0.1 using the ping command."
+      ]
+    },
+    "prompt_version": "v1",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "C-019": {
+    "raw_response": "{\n  \"root_cause\": \"OSPF routing is not established between R1 and R2 because R1's OSPF configuration does not include the network connecting R1 and R2 (172.16.0.0/30), nor does it include the 10.0.0.0/24 LAN network.\",\n  \"confidence\": 0.95,\n  \"osi_layer\": \"Layer 3 - Network\",\n  \"evidence\": [\n    \"R1# show ip ospf neighbor shows no OSPF neighbors.\",\n    \"R1# show ip protocols indicates R1 is only configured to run OSPF for the network 192.168.1.0 0.0.0.255 area 0.\"\n  ],\n  \"next_command\": \"show ip ospf interface brief\",\n  \"fix_steps\": [\n    \"Access global configuration mode on R1.\",\n    \"Enter OSPF router configuration mode using 'router ospf 1'.\",\n    \"Add the network statement for the interconnecting link: 'network 172.16.0.0 0.0.0.3 area 0'.\",\n    \"Verify OSPF adjacency using 'show ip ospf neighbor'.\"\n  ]\n}",
+    "parsed_diagnosis": {
+      "root_cause": "OSPF routing is not established between R1 and R2 because R1's OSPF configuration does not include the network connecting R1 and R2 (172.16.0.0/30), nor does it include the 10.0.0.0/24 LAN network.",
+      "confidence": 0.95,
+      "osi_layer": "Layer 3 - Network",
+      "evidence": [
+        "R1# show ip ospf neighbor shows no OSPF neighbors.",
+        "R1# show ip protocols indicates R1 is only configured to run OSPF for the network 192.168.1.0 0.0.0.255 area 0."
+      ],
+      "next_command": "show ip ospf interface brief",
+      "fix_steps": [
+        "Access global configuration mode on R1.",
+        "Enter OSPF router configuration mode using 'router ospf 1'.",
+        "Add the network statement for the interconnecting link: 'network 172.16.0.0 0.0.0.3 area 0'.",
+        "Verify OSPF adjacency using 'show ip ospf neighbor'."
+      ]
+    },
+    "prompt_version": "v1",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "C-020": {
+    "raw_response": "{\n  \"root_cause\": \"The static route for 10.0.0.0/24 points to next-hop IP 172.16.0.5, which is unreachable, whereas the connected neighbor R2 is at 172.16.0.2.\",\n  \"confidence\": 0.95,\n  \"osi_layer\": \"Layer 3 - Network\",\n  \"evidence\": [\n    \"R1# show ip route static displays a static route to 10.0.0.0/24 via next-hop 172.16.0.5.\",\n    \"R1# ping 172.16.0.5 fails with '% Destination host unreachable'.\",\n    \"R1# show cdp neighbors detail shows device R2 has IP address 172.16.0.2 on Serial0/0/0.\",\n    \"R1# ping 172.16.0.2 succeeds, confirming the correct next-hop IP is 172.16.0.2.\"\n  ],\n  \"next_command\": \"show ip route\",\n  \"fix_steps\": [\n    \"Enter global configuration mode on R1.\",\n    \"Remove the incorrect static route using 'no ip route 10.0.0.0 255.255.255.0 172.16.0.5'.\",\n    \"Configure the correct static route pointing to the reachable next-hop IP: 'ip route 10.0.0.0 255.255.255.0 172.16.0.2'.\"\n  ]\n}",
+    "parsed_diagnosis": {
+      "root_cause": "The static route for 10.0.0.0/24 points to next-hop IP 172.16.0.5, which is unreachable, whereas the connected neighbor R2 is at 172.16.0.2.",
+      "confidence": 0.95,
+      "osi_layer": "Layer 3 - Network",
+      "evidence": [
+        "R1# show ip route static displays a static route to 10.0.0.0/24 via next-hop 172.16.0.5.",
+        "R1# ping 172.16.0.5 fails with '% Destination host unreachable'.",
+        "R1# show cdp neighbors detail shows device R2 has IP address 172.16.0.2 on Serial0/0/0.",
+        "R1# ping 172.16.0.2 succeeds, confirming the correct next-hop IP is 172.16.0.2."
+      ],
+      "next_command": "show ip route",
+      "fix_steps": [
+        "Enter global configuration mode on R1.",
+        "Remove the incorrect static route using 'no ip route 10.0.0.0 255.255.255.0 172.16.0.5'.",
+        "Configure the correct static route pointing to the reachable next-hop IP: 'ip route 10.0.0.0 255.255.255.0 172.16.0.2'."
+      ]
+    },
+    "prompt_version": "v1",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "C-021": {
+    "raw_response": "{\n  \"root_cause\": \"The edge router R1 lacks a default route (gateway of last resort), preventing it from forwarding external or internet-bound traffic such as 8.8.8.8.\",\n  \"confidence\": 0.95,\n  \"osi_layer\": \"Layer 3 - Network\",\n  \"evidence\": [\n    \"R1# show ip route explicitly states 'Gateway of last resort is not set' and lacks any route for 0.0.0.0/0.\",\n    \"R1# ping 8.8.8.8 results in '% Destination host unreachable' because no route is available to reach external destinations.\"\n  ],\n  \"next_command\": \"show ip protocols\",\n  \"fix_steps\": [\n    \"Enter global configuration mode on R1.\",\n    \"Configure a default static route pointing to the ISP next-hop IP using the command: 'ip route 0.0.0.0 0.0.0.0 203.0.113.1'.\",\n    \"Verify the route is present in the routing table using 'show ip route'.\"\n  ]\n}",
+    "parsed_diagnosis": {
+      "root_cause": "The edge router R1 lacks a default route (gateway of last resort), preventing it from forwarding external or internet-bound traffic such as 8.8.8.8.",
+      "confidence": 0.95,
+      "osi_layer": "Layer 3 - Network",
+      "evidence": [
+        "R1# show ip route explicitly states 'Gateway of last resort is not set' and lacks any route for 0.0.0.0/0.",
+        "R1# ping 8.8.8.8 results in '% Destination host unreachable' because no route is available to reach external destinations."
+      ],
+      "next_command": "show ip protocols",
+      "fix_steps": [
+        "Enter global configuration mode on R1.",
+        "Configure a default static route pointing to the ISP next-hop IP using the command: 'ip route 0.0.0.0 0.0.0.0 203.0.113.1'.",
+        "Verify the route is present in the routing table using 'show ip route'."
+      ]
+    },
+    "prompt_version": "v1",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "C-022": {
+    "raw_response": "{\n  \"root_cause\": \"OSPF adjacencies are not forming between R1 and R2 because the OSPF areas configured on their connecting interfaces do not match (R1 Serial0/0/0 is in Area 0, while R2 Serial0/0/0 is in Area 1).\",\n  \"confidence\": 0.95,\n  \"osi_layer\": \"Layer 3 - Network\",\n  \"evidence\": [\n    \"R1# show ip ospf interface Serial0/0/0 shows Internet Address 172.16.0.1/30, Area 0.\",\n    \"R2# show ip ospf interface Serial0/0/0 shows Internet Address 172.16.0.2/30, Area 1.\",\n    \"R1# show ip ospf neighbor shows no output (neighbor adjacency is empty).\"\n  ],\n  \"next_command\": \"show ip ospf interface\",\n  \"fix_steps\": [\n    \"Access global configuration mode on R2.\",\n    \"Enter router OSPF configuration mode.\",\n    \"Ensure both router interfaces participating on the 172.16.0.0/30 segment are assigned to the same OSPF area (e.g., Area 0).\"\n  ]\n}",
+    "parsed_diagnosis": {
+      "root_cause": "OSPF adjacencies are not forming between R1 and R2 because the OSPF areas configured on their connecting interfaces do not match (R1 Serial0/0/0 is in Area 0, while R2 Serial0/0/0 is in Area 1).",
+      "confidence": 0.95,
+      "osi_layer": "Layer 3 - Network",
+      "evidence": [
+        "R1# show ip ospf interface Serial0/0/0 shows Internet Address 172.16.0.1/30, Area 0.",
+        "R2# show ip ospf interface Serial0/0/0 shows Internet Address 172.16.0.2/30, Area 1.",
+        "R1# show ip ospf neighbor shows no output (neighbor adjacency is empty)."
+      ],
+      "next_command": "show ip ospf interface",
+      "fix_steps": [
+        "Access global configuration mode on R2.",
+        "Enter router OSPF configuration mode.",
+        "Ensure both router interfaces participating on the 172.16.0.0/30 segment are assigned to the same OSPF area (e.g., Area 0)."
+      ]
+    },
+    "prompt_version": "v1",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "C-023": {
+    "raw_response": "{\n  \"root_cause\": \"Traffic from the 192.168.1.0/24 network to the server at 10.0.0.100 is being explicitly blocked by an inbound access control list on R1 interface GigabitEthernet0/0.\",\n  \"confidence\": 0.95,\n  \"osi_layer\": \"Layer 3 - Network (ACL)\",\n  \"evidence\": [\n    \"R1# show ip interface GigabitEthernet0/0 shows that inbound access list 101 is applied.\",\n    \"R1# show access-lists displays extended IP access list 101 containing '10 deny ip any host 10.0.0.100'.\"\n  ],\n  \"next_command\": \"show ip access-lists 101\",\n  \"fix_steps\": [\n    \"Enter global configuration mode on R1.\",\n    \"Access the extended ACL configuration via 'ip access-list extended 101'.\",\n    \"Remove or modify the deny statement (e.g., 'no 10 deny ip any host 10.0.0.100') to allow traffic to the server.\"\n  ]\n}",
+    "parsed_diagnosis": {
+      "root_cause": "Traffic from the 192.168.1.0/24 network to the server at 10.0.0.100 is being explicitly blocked by an inbound access control list on R1 interface GigabitEthernet0/0.",
+      "confidence": 0.95,
+      "osi_layer": "Layer 3 - Network (ACL)",
+      "evidence": [
+        "R1# show ip interface GigabitEthernet0/0 shows that inbound access list 101 is applied.",
+        "R1# show access-lists displays extended IP access list 101 containing '10 deny ip any host 10.0.0.100'."
+      ],
+      "next_command": "show ip access-lists 101",
+      "fix_steps": [
+        "Enter global configuration mode on R1.",
+        "Access the extended ACL configuration via 'ip access-list extended 101'.",
+        "Remove or modify the deny statement (e.g., 'no 10 deny ip any host 10.0.0.100') to allow traffic to the server."
+      ]
+    },
+    "prompt_version": "v1",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "C-024": {
+    "raw_response": "{\n  \"root_cause\": \"The access list BLOCK_SERVER is applied inbound on GigabitEthernet0/1 (facing the server network), but traffic originating from 192.168.1.0/24 entering through GigabitEthernet0/0 (facing the LAN) bypasses inbound filtering on GigabitEthernet0/1 unless applied inbound on Gi0/0 or outbound on Gi0/1.\",\n  \"confidence\": 0.95,\n  \"osi_layer\": \"Layer 3 - Network (ACL)\",\n  \"evidence\": [\n    \"R1# show ip interface GigabitEthernet0/1 confirms 'Inbound access list is BLOCK_SERVER'.\",\n    \"R1# show ip interface GigabitEthernet0/0 confirms 'Inbound access list is not set' and 'Outgoing access list is not set'.\",\n    \"R1# show access-lists shows BLOCK_SERVER denies ip from 192.168.1.0 0.0.0.255 to host 10.0.0.100.\"\n  ],\n  \"next_command\": \"show running-config interface GigabitEthernet0/0\",\n  \"fix_steps\": [\n    \"Enter global configuration mode on R1.\",\n    \"Navigate to interface GigabitEthernet0/0 configuration mode.\",\n    \"Apply the access list inbound using the command 'ip access-group BLOCK_SERVER in'.\"\n  ]\n}",
+    "parsed_diagnosis": {
+      "root_cause": "The access list BLOCK_SERVER is applied inbound on GigabitEthernet0/1 (facing the server network), but traffic originating from 192.168.1.0/24 entering through GigabitEthernet0/0 (facing the LAN) bypasses inbound filtering on GigabitEthernet0/1 unless applied inbound on Gi0/0 or outbound on Gi0/1.",
+      "confidence": 0.95,
+      "osi_layer": "Layer 3 - Network (ACL)",
+      "evidence": [
+        "R1# show ip interface GigabitEthernet0/1 confirms 'Inbound access list is BLOCK_SERVER'.",
+        "R1# show ip interface GigabitEthernet0/0 confirms 'Inbound access list is not set' and 'Outgoing access list is not set'.",
+        "R1# show access-lists shows BLOCK_SERVER denies ip from 192.168.1.0 0.0.0.255 to host 10.0.0.100."
+      ],
+      "next_command": "show running-config interface GigabitEthernet0/0",
+      "fix_steps": [
+        "Enter global configuration mode on R1.",
+        "Navigate to interface GigabitEthernet0/0 configuration mode.",
+        "Apply the access list inbound using the command 'ip access-group BLOCK_SERVER in'."
+      ]
+    },
+    "prompt_version": "v1",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "C-025": {
+    "raw_response": "{\n  \"root_cause\": \"Standard access list 10, which contains a rule denying the entire 192.168.0.0/16 network (192.168.0.0 0.0.255.255), is applied as an outgoing access list on R1's GigabitEthernet0/1 interface, unintentionally blocking multiple subnets like 192.168.1.0/24 and 192.168.2.0/24 instead of just 192.168.2.0/24.\",\n  \"confidence\": 0.95,\n  \"osi_layer\": \"Layer 3 - Network (ACL)\",\n  \"evidence\": [\n    \"R1# show access-lists shows Standard IP access list 10 contains '10 deny 192.168.0.0 0.0.255.255' which matches multiple subnets.\",\n    \"R1# show ip interface GigabitEthernet0/1 confirms that 'Outgoing access list is 10'.\"\n  ],\n  \"next_command\": \"show running-config interface GigabitEthernet0/1\",\n  \"fix_steps\": [\n    \"Enter global configuration mode on R1.\",\n    \"Modify or recreate access list 10 so it only denies the specific subnet intended (192.168.2.0/24) rather than the broad 192.168.0.0/16 range.\",\n    \"Verify traffic flow from the permitted subnets.\"\n  ]\n}",
+    "parsed_diagnosis": {
+      "root_cause": "Standard access list 10, which contains a rule denying the entire 192.168.0.0/16 network (192.168.0.0 0.0.255.255), is applied as an outgoing access list on R1's GigabitEthernet0/1 interface, unintentionally blocking multiple subnets like 192.168.1.0/24 and 192.168.2.0/24 instead of just 192.168.2.0/24.",
+      "confidence": 0.95,
+      "osi_layer": "Layer 3 - Network (ACL)",
+      "evidence": [
+        "R1# show access-lists shows Standard IP access list 10 contains '10 deny 192.168.0.0 0.0.255.255' which matches multiple subnets.",
+        "R1# show ip interface GigabitEthernet0/1 confirms that 'Outgoing access list is 10'."
+      ],
+      "next_command": "show running-config interface GigabitEthernet0/1",
+      "fix_steps": [
+        "Enter global configuration mode on R1.",
+        "Modify or recreate access list 10 so it only denies the specific subnet intended (192.168.2.0/24) rather than the broad 192.168.0.0/16 range.",
+        "Verify traffic flow from the permitted subnets."
+      ]
+    },
+    "prompt_version": "v1",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "C-026": {
+    "raw_response": "{\n  \"root_cause\": \"The access list WEB_BLOCK is configured to deny TCP traffic to host 10.0.0.100 on port 443 (HTTPS), but traffic to port 80 (HTTP) is permitted, allowing the web server to remain accessible on port 80.\",\n  \"confidence\": 0.95,\n  \"osi_layer\": \"Layer 4 - Transport\",\n  \"evidence\": [\n    \"R1# show access-lists shows extended IP access list WEB_BLOCK contains sequence 10 which denies tcp any host 10.0.0.100 eq 443 and sequence 20 which permits ip any any.\",\n    \"PC1> telnet 10.0.0.100 80 shows the connection to the web server on port 80 successfully opened.\"\n  ],\n  \"next_command\": \"show running-config interface GigabitEthernet0/0\",\n  \"fix_steps\": [\n    \"Enter global configuration mode on R1.\",\n    \"Modify the WEB_BLOCK access list to include port 80 in the deny statement (e.g., deny tcp any host 10.0.0.100 eq 80).\",\n    \"Verify the access list rules using 'show access-lists'.\"\n  ]\n}",
+    "parsed_diagnosis": {
+      "root_cause": "The access list WEB_BLOCK is configured to deny TCP traffic to host 10.0.0.100 on port 443 (HTTPS), but traffic to port 80 (HTTP) is permitted, allowing the web server to remain accessible on port 80.",
+      "confidence": 0.95,
+      "osi_layer": "Layer 4 - Transport",
+      "evidence": [
+        "R1# show access-lists shows extended IP access list WEB_BLOCK contains sequence 10 which denies tcp any host 10.0.0.100 eq 443 and sequence 20 which permits ip any any.",
+        "PC1> telnet 10.0.0.100 80 shows the connection to the web server on port 80 successfully opened."
+      ],
+      "next_command": "show running-config interface GigabitEthernet0/0",
+      "fix_steps": [
+        "Enter global configuration mode on R1.",
+        "Modify the WEB_BLOCK access list to include port 80 in the deny statement (e.g., deny tcp any host 10.0.0.100 eq 80).",
+        "Verify the access list rules using 'show access-lists'."
+      ]
+    },
+    "prompt_version": "v1",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "C-027": {
+    "raw_response": "{\n  \"root_cause\": \"Insufficient evidence to determine a definitive root cause. The NAT configuration shows internal and outside interface roles, but there is no evidence of translation activity or traffic hitting the router.\",\n  \"confidence\": 0.3,\n  \"osi_layer\": \"Unknown\",\n  \"evidence\": [\n    \"R1# show ip nat translations is empty.\",\n    \"R1# show ip nat statistics confirms 0 total active translations.\"\n  ],\n  \"next_command\": \"show ip interface brief\",\n  \"fix_steps\": [\n    \"Run 'show ip interface brief' to check the operational status of GigabitEthernet0/0 and GigabitEthernet0/1.\",\n    \"Verify access lists or routing configurations that permit traffic from the internal network.\"\n  ]\n}",
+    "parsed_diagnosis": {
+      "root_cause": "Insufficient evidence to determine a definitive root cause. The NAT configuration shows internal and outside interface roles, but there is no evidence of translation activity or traffic hitting the router.",
+      "confidence": 0.3,
+      "osi_layer": "Unknown",
+      "evidence": [
+        "R1# show ip nat translations is empty.",
+        "R1# show ip nat statistics confirms 0 total active translations."
+      ],
+      "next_command": "show ip interface brief",
+      "fix_steps": [
+        "Run 'show ip interface brief' to check the operational status of GigabitEthernet0/0 and GigabitEthernet0/1.",
+        "Verify access lists or routing configurations that permit traffic from the internal network."
+      ]
+    },
+    "prompt_version": "v1",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "C-028": {
+    "raw_response": "{\n  \"root_cause\": \"The NAT inside source access list permits the wrong subnet (10.0.0.0/24), whereas the internal LAN hosts are on the 192.168.1.0/24 subnet.\",\n  \"confidence\": 0.95,\n  \"osi_layer\": \"Layer 3 - Network\",\n  \"evidence\": [\n    \"The symptom states that hosts on 192.168.1.0/24 cannot reach external networks and the NAT table stays empty.\",\n    \"R1# show access-lists displays Standard IP access list 1 permitting 10.0.0.0 0.0.0.255.\",\n    \"R1# show running-config | include nat shows 'ip nat inside source list 1 interface GigabitEthernet0/1 overload'.\",\n    \"R1# show ip interface brief shows GigabitEthernet0/0 has the IP address 192.168.1.1.\"\n  ],\n  \"next_command\": \"show ip nat translations\",\n  \"fix_steps\": [\n    \"Enter global configuration mode on R1.\",\n    \"Modify access list 1 to permit the correct internal subnet using 'access-list 1 permit 192.168.1.0 0.0.0.255' after removing the old statement if necessary.\",\n    \"Verify NAT translations once internal hosts generate traffic.\"\n  ]\n}",
+    "parsed_diagnosis": {
+      "root_cause": "The NAT inside source access list permits the wrong subnet (10.0.0.0/24), whereas the internal LAN hosts are on the 192.168.1.0/24 subnet.",
+      "confidence": 0.95,
+      "osi_layer": "Layer 3 - Network",
+      "evidence": [
+        "The symptom states that hosts on 192.168.1.0/24 cannot reach external networks and the NAT table stays empty.",
+        "R1# show access-lists displays Standard IP access list 1 permitting 10.0.0.0 0.0.0.255.",
+        "R1# show running-config | include nat shows 'ip nat inside source list 1 interface GigabitEthernet0/1 overload'.",
+        "R1# show ip interface brief shows GigabitEthernet0/0 has the IP address 192.168.1.1."
+      ],
+      "next_command": "show ip nat translations",
+      "fix_steps": [
+        "Enter global configuration mode on R1.",
+        "Modify access list 1 to permit the correct internal subnet using 'access-list 1 permit 192.168.1.0 0.0.0.255' after removing the old statement if necessary.",
+        "Verify NAT translations once internal hosts generate traffic."
+      ]
+    },
+    "prompt_version": "v1",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "C-029": {
+    "raw_response": "{\n  \"root_cause\": \"The WLAN profile 'CorpWiFi' (WLAN ID 1) is currently disabled on the Wireless LAN Controller, preventing clients from seeing or connecting to the Wi-Fi network.\",\n  \"confidence\": 0.99,\n  \"osi_layer\": \"Layer 2 - Data Link / Wireless\",\n  \"evidence\": [\n    \"WLC> show wlan summary shows WLAN ID 1 (CorpWiFi) status is Disabled.\",\n    \"WLC> show wlan 1 confirms that the Status of WLAN Identifier 1 is set to Disabled.\"\n  ],\n  \"next_command\": \"show wlan 1\",\n  \"fix_steps\": [\n    \"Access the WLC CLI configuration mode.\",\n    \"Enable the WLAN using the command 'config wlan enable 1'.\",\n    \"Verify the WLAN status is active using 'show wlan summary'.\"\n  ]\n}",
+    "parsed_diagnosis": {
+      "root_cause": "The WLAN profile 'CorpWiFi' (WLAN ID 1) is currently disabled on the Wireless LAN Controller, preventing clients from seeing or connecting to the Wi-Fi network.",
+      "confidence": 0.99,
+      "osi_layer": "Layer 2 - Data Link / Wireless",
+      "evidence": [
+        "WLC> show wlan summary shows WLAN ID 1 (CorpWiFi) status is Disabled.",
+        "WLC> show wlan 1 confirms that the Status of WLAN Identifier 1 is set to Disabled."
+      ],
+      "next_command": "show wlan 1",
+      "fix_steps": [
+        "Access the WLC CLI configuration mode.",
+        "Enable the WLAN using the command 'config wlan enable 1'.",
+        "Verify the WLAN status is active using 'show wlan summary'."
+      ]
+    },
+    "prompt_version": "v1",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "C-030": {
+    "raw_response": "{\n  \"root_cause\": \"The WLAN security configuration on the WLC is misconfigured for client authentication. The WLAN is configured for WPA2 with 802.1X (Enterprise / EAP) authentication, but the reported symptom indicates clients are attempting to connect with a standard WPA2 password (PSK), leading to an EAP timeout and authentication failure.\",\n  \"confidence\": 0.92,\n  \"osi_layer\": \"Layer 2 - Data Link\",\n  \"evidence\": [\n    \"WLC> show wlan 1 shows Auth Key Management is set to 802.1x under WPA+WPA2 security settings.\",\n    \"Client authentication log shows: 'MAC: 0011.2233.4455 - Auth failure - EAP timeout'.\",\n    \"Symptom states that the client fails to connect with the correct WPA2 password.\"\n  ],\n  \"next_command\": \"show wlan summary\",\n  \"fix_steps\": [\n    \"Access the WLC configuration interface.\",\n    \"Navigate to the WLAN 1 security settings.\",\n    \"Change the Auth Key Management from 802.1x to Pre-Shared Key (PSK) to match the WPA2 password connection method.\"\n  ]\n}",
+    "parsed_diagnosis": {
+      "root_cause": "The WLAN security configuration on the WLC is misconfigured for client authentication. The WLAN is configured for WPA2 with 802.1X (Enterprise / EAP) authentication, but the reported symptom indicates clients are attempting to connect with a standard WPA2 password (PSK), leading to an EAP timeout and authentication failure.",
+      "confidence": 0.92,
+      "osi_layer": "Layer 2 - Data Link",
+      "evidence": [
+        "WLC> show wlan 1 shows Auth Key Management is set to 802.1x under WPA+WPA2 security settings.",
+        "Client authentication log shows: 'MAC: 0011.2233.4455 - Auth failure - EAP timeout'.",
+        "Symptom states that the client fails to connect with the correct WPA2 password."
+      ],
+      "next_command": "show wlan summary",
+      "fix_steps": [
+        "Access the WLC configuration interface.",
+        "Navigate to the WLAN 1 security settings.",
+        "Change the Auth Key Management from 802.1x to Pre-Shared Key (PSK) to match the WPA2 password connection method."
+      ]
+    },
+    "prompt_version": "v1",
+    "model": "gemini-3.5-flash-lite"
+  }
+}
