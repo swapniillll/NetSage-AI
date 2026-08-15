@@ -1,0 +1,14 @@
+case_id,title,category,symptom,topology_note,show_outputs,expected_fault,osi_layer,concept,severity,expected_next_command,expected_fix
+C-001,PC cannot reach gateway due to wrong VLAN,VLAN,PC fails to ping default gateway 192.168.1.1,PC connected to SW1 port Fa0/1,"SW1# show vlan brief
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    Fa0/1, Fa0/2
+10   users                            active    
+20   servers                          active    
+
+SW1# show mac address-table
+          Mac Address Table
+-------------------------------------------
+Vlan    Mac Address       Type        Ports
+----    -----------       --------    -----
+   1    0001.0001.0001    DYNAMIC     Fa0/1",PC is in VLAN 1 but should be in VLAN 10,2,VLAN basics,low,show interface Fa0/1 switchport,switchport access vlan 10

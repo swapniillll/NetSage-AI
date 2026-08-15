@@ -3,7 +3,7 @@ This file is the single source of truth for "what's actually built." Every task 
 
 ## Task Checklist
 - [x] TASK-001 — Project Setup & Repo Scaffold
-- [ ] TASK-002 — Data Schema & cases.csv Template
+- [x] TASK-002 — Data Schema & cases.csv Template
 - [ ] TASK-003 — Case Dataset: Write 30 Cases
 - [ ] TASK-004 — Python Rule Checker Core
 - [ ] TASK-005 — Rule Checker Unit Tests
@@ -24,6 +24,7 @@ _none currently_
 ## Files Produced Log
 _(append one line per task on completion: `TASK-0XX: file1, file2, ...`)_
 TASK-001: README.md, PROJECT_STATE.md, requirements.txt, .gitignore
+TASK-002: data/cases.csv, data/SCHEMA.md, tests/test_schema.py
 
 ## Known Issues / Deferred Items
 _(anything explicitly skipped or flagged needs_manual_review — list here so nothing is silently lost)_
