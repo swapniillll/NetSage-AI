@@ -5,26 +5,27 @@ import sys
 import pandas as pd
 from typing import Dict, Any
 
-from dotenv import load_dotenv
-from anthropic import Anthropic
+from google import genai
+from google.genai import types
 
 # Add parent dir to path so we can import from scripts
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from scripts.rule_checker import run_all
 from scripts.validate_diagnosis import validate
+from dotenv import load_dotenv
 
 PROMPT_FILE = "prompts_ai/diagnose_prompt.md"
 CASES_FILE = "data/cases.csv"
 DIAGNOSES_FILE = "data/diagnoses.json"
 PROMPT_VERSION = "v1"
-MODEL_NAME = "claude-3-5-sonnet-20240620"
+MODEL_NAME = "gemini-2.5-flash"
 
 def load_environment():
     """Loads environment variables without hardcoding secrets."""
     load_dotenv()
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
-        print("WARNING: ANTHROPIC_API_KEY environment variable is not set. Real API calls will fail.")
+        print("WARNING: GEMINI_API_KEY environment variable is not set. Real API calls will fail.")
     return api_key
 
 def format_findings(findings) -> str:
@@ -49,19 +50,19 @@ def build_prompt(symptom: str, topology_note: str, show_outputs: str, rule_findi
     return prompt
 
 def call_llm(prompt_text: str, model: str) -> str:
-    """Send the completed prompt to the configured LLM API using Anthropic client."""
-    client = Anthropic() # picks up ANTHROPIC_API_KEY automatically
+    """Send the completed prompt to the configured LLM API using Google Gemini client."""
+    client = genai.Client() # picks up GEMINI_API_KEY automatically
     
-    response = client.messages.create(
+    response = client.models.generate_content(
         model=model,
-        max_tokens=1024,
-        temperature=0.0,
-        system="You are a senior network-engineer helper AI within the NetSage troubleshooting platform.",
-        messages=[
-            {"role": "user", "content": prompt_text}
-        ]
+        contents=prompt_text,
+        config=types.GenerateContentConfig(
+            system_instruction="You are a senior network-engineer helper AI within the NetSage troubleshooting platform.",
+            temperature=0.0,
+            max_output_tokens=1024,
+        )
     )
-    return response.content[0].text
+    return response.text
 
 def run_case(case_id: str, df: pd.DataFrame, output_path: str = DIAGNOSES_FILE):
     """Run the complete pipeline for a single case and save the result."""

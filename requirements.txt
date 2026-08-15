@@ -2,4 +2,4 @@ pandas
 pytest
 jsonschema
 matplotlib
-anthropic
+google-genai

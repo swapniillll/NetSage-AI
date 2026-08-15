@@ -97,7 +97,7 @@ def test_smoke_diagnose(mock_call_llm, mock_dataset, temp_diagnoses_file):
     dump_str = json.dumps(data)
     # Generic safeguard assertion that our environment API key hasn't bled into the output
     from scripts.diagnose import load_environment
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    api_key = os.environ.get("GEMINI_API_KEY")
     if api_key:
         assert api_key not in dump_str
 

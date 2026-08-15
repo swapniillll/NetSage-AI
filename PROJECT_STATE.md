@@ -1,6 +1,12 @@
 # PROJECT_STATE.md
 This file is the single source of truth for "what's actually built." Every task reads this first and updates it last. If a session ends unexpectedly, the next session trusts this file over any assumption.
 
+## CURRENT PROVIDER STATUS
+Active LLM provider: Google Gemini
+Model: gemini-2.5-flash
+Credential: GEMINI_API_KEY
+Migration: Anthropic → Gemini completed
+
 ## Task Checklist
 - [x] TASK-001 — Project Setup & Repo Scaffold
 - [x] TASK-002 — Data Schema & cases.csv Template
