@@ -12,3 +12,384 @@ SW1# show mac address-table
 Vlan    Mac Address       Type        Ports
 ----    -----------       --------    -----
    1    0001.0001.0001    DYNAMIC     Fa0/1",PC is in VLAN 1 but should be in VLAN 10,2,VLAN basics,low,show interface Fa0/1 switchport,switchport access vlan 10
+C-002,Trunk link not passing VLAN 10 traffic,VLAN,Hosts in VLAN 10 on SW2 cannot ping hosts in VLAN 10 on SW1,SW1 Gi0/1 connected to SW2 Gi0/1 via trunk,"SW1# show interfaces trunk
+Port        Mode             Encapsulation  Status        Native vlan
+Gi0/1       on               802.1q         trunking      1
+
+Port        Vlans allowed on trunk
+Gi0/1       1,20
+
+Port        Vlans allowed and active in management domain
+Gi0/1       1,20
+
+Port        Vlans in spanning tree forwarding state and not pruned
+Gi0/1       1,20",VLAN 10 is not in the allowed list on the trunk link between SW1 and SW2,2,VLAN trunking,medium,show interfaces Gi0/1 trunk,"switchport trunk allowed vlan add 10"
+C-003,Inter-VLAN routing not working due to missing sub-interface,VLAN,Hosts in VLAN 10 cannot reach hosts in VLAN 20,R1 Gi0/0 configured as router-on-a-stick connected to SW1,"R1# show ip interface brief
+Interface              IP-Address      OK? Method Status                Protocol
+GigabitEthernet0/0     unassigned      YES unset  up                    up
+GigabitEthernet0/0.10  192.168.10.1    YES manual up                    up
+GigabitEthernet0/0.20  unassigned      YES unset  up                    up
+
+R1# show running-config interface GigabitEthernet0/0.10
+interface GigabitEthernet0/0.10
+ encapsulation dot1Q 10
+ ip address 192.168.10.1 255.255.255.0
+
+R1# show running-config interface GigabitEthernet0/0.20
+interface GigabitEthernet0/0.20
+ encapsulation dot1Q 20
+ no ip address",Sub-interface Gi0/0.20 has no IP address configured for inter-VLAN routing,3,Inter-VLAN routing,high,show running-config interface GigabitEthernet0/0.20,"ip address 192.168.20.1 255.255.255.0"
+C-004,Native VLAN mismatch between switches,VLAN,Intermittent connectivity issues between SW1 and SW2,SW1 Gi0/1 trunk to SW2 Gi0/1,"SW1# show interfaces Gi0/1 trunk
+Port        Mode             Encapsulation  Status        Native vlan
+Gi0/1       on               802.1q         trunking      1
+
+SW2# show interfaces Gi0/1 trunk
+Port        Mode             Encapsulation  Status        Native vlan
+Gi0/1       on               802.1q         trunking      99
+
+%CDP-4-NATIVE_VLAN_MISMATCH: Native VLAN mismatch discovered on Gi0/1 (1) with SW2 Gi0/1 (99)",Native VLAN mismatch: SW1 uses VLAN 1 and SW2 uses VLAN 99 as native VLAN on the trunk,2,VLAN trunking and native VLAN,medium,show interfaces Gi0/1 trunk,"switchport trunk native vlan 99 (on SW1 to match SW2)"
+C-005,VLAN not created on switch causing port isolation,VLAN,PC on Fa0/5 assigned to VLAN 30 has no connectivity,SW1 Fa0/5 configured for VLAN 30,"SW1# show vlan brief
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    Fa0/1, Fa0/2
+10   users                            active    Fa0/3, Fa0/4
+20   servers                          active    Fa0/6
+
+SW1# show interfaces Fa0/5 switchport
+Name: Fa0/5
+Switchport: Enabled
+Administrative Mode: static access
+Operational Mode: static access
+Access VLAN: 30
+Trunking Native Mode VLAN: 1
+Voice VLAN: none",Port Fa0/5 is assigned to VLAN 30 but VLAN 30 does not exist on the switch,2,VLAN creation,low,show vlan brief,"vlan 30 / name engineering"
+C-006,PC has wrong default gateway configured,Gateway/IP,PC can ping local hosts but not remote networks,PC1 (192.168.1.10/24) connected to SW1; R1 gateway is 192.168.1.1,"PC1> ipconfig
+IP Address......................: 192.168.1.10
+Subnet Mask.....................: 255.255.255.0
+Default Gateway.................: 192.168.1.100
+
+R1# show ip interface brief
+Interface              IP-Address      OK? Method Status                Protocol
+GigabitEthernet0/0     192.168.1.1     YES manual up                    up",PC default gateway 192.168.1.100 does not match the router interface 192.168.1.1,3,Default gateway configuration,medium,show ip route,"Set PC default gateway to 192.168.1.1"
+C-007,Duplicate IP address conflict,Gateway/IP,PC1 intermittently loses connectivity and sees duplicate IP warning,PC1 and Server1 both on VLAN 10 subnet 192.168.10.0/24,"PC1> ipconfig
+IP Address......................: 192.168.10.50
+Subnet Mask.....................: 255.255.255.0
+Default Gateway.................: 192.168.10.1
+
+Server1# show ip interface brief
+Interface              IP-Address      OK? Method Status                Protocol
+FastEthernet0/0        192.168.10.50   YES manual up                    up
+
+%IP-4-DUPADDR: Duplicate address 192.168.10.50 on FastEthernet0/0, sourced by 0001.0001.0001",Duplicate IP 192.168.10.50 assigned to both PC1 and Server1,3,IP addressing,high,show arp,"Change Server1 IP to a unique address such as 192.168.10.51"
+C-008,Incorrect subnet mask prevents communication,Gateway/IP,PC1 cannot ping PC2 although both are on the same switch and VLAN,PC1 (192.168.1.10/24) and PC2 (192.168.1.20/28) on SW1 VLAN 10,"PC1> ipconfig
+IP Address......................: 192.168.1.10
+Subnet Mask.....................: 255.255.255.0
+Default Gateway.................: 192.168.1.1
+
+PC2> ipconfig
+IP Address......................: 192.168.1.20
+Subnet Mask.....................: 255.255.240.0
+Default Gateway.................: 192.168.1.1",PC2 has wrong subnet mask 255.255.240.0 instead of 255.255.255.0; hosts compute different network IDs,3,Subnet masking,medium,ping 192.168.1.10 from PC2,"Set PC2 subnet mask to 255.255.255.0"
+C-009,Router interface IP not in correct subnet,Gateway/IP,Hosts on 192.168.1.0/24 cannot reach their gateway,R1 Gi0/0 is the gateway for the 192.168.1.0/24 LAN,"R1# show ip interface brief
+Interface              IP-Address      OK? Method Status                Protocol
+GigabitEthernet0/0     192.168.2.1     YES manual up                    up
+
+R1# show running-config interface GigabitEthernet0/0
+interface GigabitEthernet0/0
+ ip address 192.168.2.1 255.255.255.0
+ no shutdown",Router gateway interface Gi0/0 is configured with 192.168.2.1 instead of 192.168.1.1 — wrong subnet,3,IP addressing and subnetting,high,show ip interface GigabitEthernet0/0,"ip address 192.168.1.1 255.255.255.0"
+C-010,No IP address assigned to host,Gateway/IP,PC cannot communicate with any device on the network,PC1 connected to SW1 Fa0/3 which is in VLAN 10,"PC1> ipconfig
+IP Address......................: 0.0.0.0
+Subnet Mask.....................: 0.0.0.0
+Default Gateway.................: 
+
+PC1> ping 192.168.10.1
+Request timed out.
+
+SW1# show interfaces Fa0/3 status
+Port    Name   Status       Vlan  Duplex Speed Type
+Fa0/3          connected    10    a-full a-100 10/100BaseTX",PC1 has no IP address configured (0.0.0.0) — either static IP was never set or DHCP failed,3,IP addressing,low,show ip dhcp binding,"Assign static IP (ip address 192.168.10.10 255.255.255.0) or fix DHCP"
+C-011,DHCP pool has wrong default gateway,DHCP,Clients get IP addresses from DHCP but cannot reach external networks,R1 is DHCP server for 192.168.1.0/24 network,"R1# show ip dhcp pool
+Pool LAN :
+ Utilization mark (high/low)    : 100 / 0
+ Subnet size (first/next)       : 0 / 0
+ Total addresses                : 254
+ Leased addresses               : 3
+ Pending event                  : none
+ 1 subnet is currently in the pool :
+ Current index        IP address range                    Leased addresses
+ 192.168.1.10         192.168.1.1      - 192.168.1.254    3
+
+R1# show running-config | section dhcp
+ip dhcp pool LAN
+ network 192.168.1.0 255.255.255.0
+ default-router 192.168.2.1
+ dns-server 8.8.8.8
+
+R1# show ip interface brief
+Interface              IP-Address      OK? Method Status                Protocol
+GigabitEthernet0/0     192.168.1.1     YES manual up                    up",DHCP pool default-router is 192.168.2.1 which is not the actual gateway 192.168.1.1,3,DHCP configuration,high,show ip dhcp pool,"default-router 192.168.1.1 (in ip dhcp pool LAN)"
+C-012,DHCP addresses exhausted,DHCP,New clients fail to obtain an IP address via DHCP,R1 serves DHCP for 192.168.1.0/24; 5 clients expected,"R1# show ip dhcp pool
+Pool LAN :
+ Total addresses                : 5
+ Leased addresses               : 5
+ Pending event                  : none
+
+R1# show ip dhcp binding
+IP address       Client-ID/              Lease expiration        Type
+                 Hardware address/
+                 User name
+192.168.1.10     0001.0001.0001          Aug 16 2026 12:00 AM   Automatic
+192.168.1.11     0001.0001.0002          Aug 16 2026 12:00 AM   Automatic
+192.168.1.12     0001.0001.0003          Aug 16 2026 12:00 AM   Automatic
+192.168.1.13     0001.0001.0004          Aug 16 2026 12:00 AM   Automatic
+192.168.1.14     0001.0001.0005          Aug 16 2026 12:00 AM   Automatic",DHCP pool is fully exhausted — all 5 available addresses are leased and no new leases can be issued,7,DHCP pool sizing,medium,show ip dhcp binding,"Expand pool range or reduce lease time; clear stale bindings with clear ip dhcp binding *"
+C-013,DHCP relay not configured on router,DHCP,Clients on VLAN 20 do not receive DHCP addresses; DHCP server is on VLAN 10,R1 routes between VLAN 10 (DHCP server) and VLAN 20 (clients),"R1# show running-config interface GigabitEthernet0/0.20
+interface GigabitEthernet0/0.20
+ encapsulation dot1Q 20
+ ip address 192.168.20.1 255.255.255.0
+
+R1# show running-config interface GigabitEthernet0/0.10
+interface GigabitEthernet0/0.10
+ encapsulation dot1Q 10
+ ip address 192.168.10.1 255.255.255.0
+
+R1# show ip dhcp pool
+Pool LAN20 :
+ Total addresses                : 254
+ Leased addresses               : 0",No ip helper-address configured on Gi0/0.20 sub-interface to relay DHCP requests to the server on VLAN 10,7,DHCP relay (ip helper-address),high,show running-config interface GigabitEthernet0/0.20,"ip helper-address 192.168.10.2 (under interface Gi0/0.20)"
+C-014,DHCP excluded range missing causes IP conflict with gateway,DHCP,Gateway intermittently unreachable; DHCP client received the gateway IP,R1 Gi0/0 is 192.168.1.1/24 and also serves DHCP for that subnet,"R1# show ip dhcp binding
+IP address       Client-ID/              Lease expiration        Type
+192.168.1.1      0001.0001.000A          Aug 16 2026 12:00 AM   Automatic
+192.168.1.2      0001.0001.000B          Aug 16 2026 12:00 AM   Automatic
+
+R1# show running-config | section dhcp
+ip dhcp pool LAN
+ network 192.168.1.0 255.255.255.0
+ default-router 192.168.1.1
+
+R1# show ip interface brief
+Interface              IP-Address      OK? Method Status                Protocol
+GigabitEthernet0/0     192.168.1.1     YES manual up                    up
+
+%IP-4-DUPADDR: Duplicate address 192.168.1.1 on GigabitEthernet0/0",DHCP pool does not exclude the gateway address 192.168.1.1 so it was leased to a client causing a duplicate IP conflict,3,DHCP excluded addresses,high,show ip dhcp binding,"ip dhcp excluded-address 192.168.1.1 192.168.1.9"
+C-015,DNS server unreachable due to wrong DNS IP,DNS,PC can ping 8.8.8.8 by IP but cannot resolve www.example.com,PC1 on 192.168.1.0/24 network; DNS should be 192.168.1.5,"PC1> ipconfig /all
+IP Address......................: 192.168.1.10
+Subnet Mask.....................: 255.255.255.0
+Default Gateway.................: 192.168.1.1
+DNS Server......................: 192.168.1.50
+
+PC1> ping 192.168.1.5
+Reply from 192.168.1.5: bytes=32 time<1ms TTL=128
+
+PC1> ping 192.168.1.50
+Request timed out.
+
+PC1> nslookup www.example.com
+DNS request timed out. Server: 192.168.1.50",PC DNS server is set to 192.168.1.50 which does not exist; correct DNS server is 192.168.1.5,7,DNS client configuration,medium,nslookup www.example.com,"Set PC DNS server to 192.168.1.5"
+C-016,DNS server not running on server,DNS,All clients fail to resolve hostnames; pings to IP work fine,DNS server at 192.168.1.5; clients configured correctly,"PC1> nslookup www.example.com 192.168.1.5
+DNS request timed out.
+timeout was 2 seconds.
+Server:  UnKnown
+Address:  192.168.1.5
+
+PC1> ping 192.168.1.5
+Reply from 192.168.1.5: bytes=32 time<1ms TTL=128
+
+Server1# show ip interface brief
+Interface              IP-Address      OK? Method Status                Protocol
+FastEthernet0/0        192.168.1.5     YES manual up                    up
+
+Server1# netstat -an | include :53
+(no output)",DNS service is not running on Server1 (port 53 not listening) even though the server is reachable,7,DNS server operation,high,netstat -an on Server1,"Start the DNS service on Server1"
+C-017,DHCP distributes wrong DNS server address,DNS,Clients receive DHCP addresses but cannot resolve domain names,R1 serves DHCP with DNS setting; actual DNS server is 10.0.0.53,"R1# show running-config | section dhcp
+ip dhcp pool LAN
+ network 192.168.1.0 255.255.255.0
+ default-router 192.168.1.1
+ dns-server 10.0.0.99
+
+PC1> ipconfig /all
+DNS Server......................: 10.0.0.99
+
+PC1> ping 10.0.0.99
+Request timed out.
+
+PC1> ping 10.0.0.53
+Reply from 10.0.0.53: bytes=32 time=1ms TTL=254",DHCP pool distributes wrong DNS server 10.0.0.99 instead of the actual DNS server 10.0.0.53,7,DHCP and DNS integration,medium,show ip dhcp pool,"dns-server 10.0.0.53 (in ip dhcp pool LAN)"
+C-018,Missing static route to remote network,Routing,PC on 192.168.1.0/24 cannot reach 10.0.0.0/24 network,R1 connects LAN 192.168.1.0/24; R2 connects 10.0.0.0/24; serial link between R1 and R2,"R1# show ip route
+Gateway of last resort is not set
+C    192.168.1.0/24 is directly connected, GigabitEthernet0/0
+L    192.168.1.1/32 is directly connected, GigabitEthernet0/0
+C    172.16.0.0/30 is directly connected, Serial0/0/0
+L    172.16.0.1/32 is directly connected, Serial0/0/0
+
+R1# show ip interface brief
+Interface              IP-Address      OK? Method Status                Protocol
+GigabitEthernet0/0     192.168.1.1     YES manual up                    up
+Serial0/0/0            172.16.0.1      YES manual up                    up
+
+R1# ping 10.0.0.1
+% Destination host unreachable",R1 has no route to 10.0.0.0/24 — missing static route via the serial link to R2,3,Static routing,medium,show ip route,"ip route 10.0.0.0 255.255.255.0 172.16.0.2"
+C-019,OSPF not enabled on an interface,Routing,R2 routes are not appearing in R1 OSPF table,R1 and R2 connected via 172.16.0.0/30; R2 has 10.0.0.0/24 LAN,"R1# show ip ospf neighbor
+(no output)
+
+R1# show ip protocols
+Routing Protocol is ""ospf 1""
+  Router ID 1.1.1.1
+  Routing for Networks:
+    192.168.1.0 0.0.0.255 area 0
+
+R1# show ip interface brief
+Interface              IP-Address      OK? Method Status                Protocol
+GigabitEthernet0/0     192.168.1.1     YES manual up                    up
+Serial0/0/0            172.16.0.1      YES manual up                    up",OSPF network statement on R1 does not include the Serial0/0/0 link (172.16.0.0/30) so no neighbor adjacency forms,3,OSPF configuration,high,show ip ospf interface,"network 172.16.0.0 0.0.0.3 area 0 (under router ospf 1)"
+C-020,Wrong next-hop in static route,Routing,Traffic to 10.0.0.0/24 is blackholed despite static route existing,R1 has serial link to R2 at 172.16.0.2; R2 has 10.0.0.0/24 LAN,"R1# show ip route static
+S    10.0.0.0/24 [1/0] via 172.16.0.5
+
+R1# show ip interface brief
+Interface              IP-Address      OK? Method Status                Protocol
+Serial0/0/0            172.16.0.1      YES manual up                    up
+
+R1# show cdp neighbors detail
+Device ID: R2
+  IP address: 172.16.0.2
+  Interface: Serial0/0/0
+
+R1# ping 172.16.0.5
+% Destination host unreachable
+R1# ping 172.16.0.2
+Reply from 172.16.0.2: bytes=32 time=2ms TTL=255",Static route to 10.0.0.0/24 points to wrong next-hop 172.16.0.5 instead of 172.16.0.2,3,Static routing,high,show ip route 10.0.0.0,"no ip route 10.0.0.0 255.255.255.0 172.16.0.5 / ip route 10.0.0.0 255.255.255.0 172.16.0.2"
+C-021,Default route missing on edge router,Routing,Internal hosts cannot reach any external/internet destinations,R1 is the edge router; ISP router at 203.0.113.1 is the next hop,"R1# show ip route
+Gateway of last resort is not set
+C    192.168.1.0/24 is directly connected, GigabitEthernet0/0
+L    192.168.1.1/32 is directly connected, GigabitEthernet0/0
+C    203.0.113.0/30 is directly connected, Serial0/0/0
+L    203.0.113.2/32 is directly connected, Serial0/0/0
+
+R1# ping 203.0.113.1
+Reply from 203.0.113.1: bytes=32 time=1ms TTL=255
+
+R1# ping 8.8.8.8
+% Destination host unreachable",No default route configured on R1; gateway of last resort is not set so traffic to unknown destinations is dropped,3,Default routing,medium,show ip route,"ip route 0.0.0.0 0.0.0.0 203.0.113.1"
+C-022,OSPF area mismatch between neighbors,Routing,R1 and R2 are directly connected but OSPF adjacency does not form,R1 Serial0/0/0 to R2 Serial0/0/0 on 172.16.0.0/30,"R1# show ip ospf interface Serial0/0/0
+Serial0/0/0 is up, line protocol is up
+  Internet Address 172.16.0.1/30, Area 0
+  Process ID 1, Router ID 1.1.1.1
+
+R2# show ip ospf interface Serial0/0/0
+Serial0/0/0 is up, line protocol is up
+  Internet Address 172.16.0.2/30, Area 1
+  Process ID 1, Router ID 2.2.2.2
+
+R1# show ip ospf neighbor
+(no output)",OSPF area mismatch: R1 has Serial0/0/0 in area 0 but R2 has the same link in area 1 — adjacency cannot form,3,OSPF areas,high,show ip ospf interface Serial0/0/0,"network 172.16.0.0 0.0.0.3 area 0 (on R2 to match R1)"
+C-023,ACL blocking all traffic instead of specific host,ACL,All hosts on 192.168.1.0/24 are blocked from reaching the server at 10.0.0.100,R1 has ACL applied on Gi0/0 inbound,"R1# show access-lists
+Extended IP access list 101
+    10 deny ip any host 10.0.0.100
+
+R1# show ip interface GigabitEthernet0/0
+GigabitEthernet0/0 is up, line protocol is up
+  Internet address is 192.168.1.1/24
+  Inbound  access list is 101
+  Outgoing access list is not set",ACL 101 denies all traffic to 10.0.0.100 but has no permit statement — the implicit deny all at the end blocks all other traffic too,3,ACL implicit deny,high,show access-lists 101,"Add permit ip any any after the deny rule: access-list 101 permit ip any any"
+C-024,ACL applied in wrong direction,ACL,Traffic from 192.168.1.0/24 can still reach blocked server 10.0.0.100 despite ACL,R1 Gi0/0 faces the LAN; Gi0/1 faces the server network,"R1# show access-lists
+Extended IP access list BLOCK_SERVER
+    10 deny ip 192.168.1.0 0.0.0.255 host 10.0.0.100
+    20 permit ip any any
+
+R1# show ip interface GigabitEthernet0/1
+GigabitEthernet0/1 is up, line protocol is up
+  Internet address is 10.0.0.1/24
+  Inbound  access list is BLOCK_SERVER
+  Outgoing access list is not set
+
+R1# show ip interface GigabitEthernet0/0
+GigabitEthernet0/0 is up, line protocol is up
+  Internet address is 192.168.1.1/24
+  Inbound  access list is not set
+  Outgoing access list is not set",ACL BLOCK_SERVER is applied inbound on Gi0/1 (server side) but traffic from 192.168.1.0 enters via Gi0/0 — ACL should be inbound on Gi0/0 or outbound on Gi0/1,3,ACL direction and placement,medium,show ip interface GigabitEthernet0/0,"Move ACL: no ip access-group BLOCK_SERVER in (on Gi0/1); ip access-group BLOCK_SERVER in (on Gi0/0)"
+C-025,Standard ACL blocking more traffic than intended,ACL,Multiple subnets are being denied access to server network instead of just 192.168.2.0/24,R1 connects 192.168.1.0/24 and 192.168.2.0/24 to server 10.0.0.0/24,"R1# show access-lists
+Standard IP access list 10
+    10 deny 192.168.0.0 0.0.255.255
+    20 permit any
+
+R1# show ip interface GigabitEthernet0/1
+GigabitEthernet0/1 is up, line protocol is up
+  Internet address is 10.0.0.1/24
+  Outgoing access list is 10",Standard ACL 10 uses wildcard 0.0.255.255 which blocks both 192.168.1.0/24 and 192.168.2.0/24 instead of only 192.168.2.0/24,3,ACL wildcard masks,medium,show access-lists 10,"Replace with: no access-list 10 / access-list 10 deny 192.168.2.0 0.0.0.255 / access-list 10 permit any"
+C-026,ACL referencing wrong port number,ACL,Web server at 10.0.0.100 is accessible on port 80 despite ACL meant to block HTTP,R1 filters traffic between LAN and server network,"R1# show access-lists
+Extended IP access list WEB_BLOCK
+    10 deny tcp any host 10.0.0.100 eq 443
+    20 permit ip any any
+
+R1# show ip interface GigabitEthernet0/0
+  Inbound  access list is WEB_BLOCK
+
+PC1> telnet 10.0.0.100 80
+Trying 10.0.0.100...Open
+Connection to host established.",ACL blocks port 443 (HTTPS) instead of port 80 (HTTP) so HTTP traffic passes through,4,ACL port filtering,low,show access-lists WEB_BLOCK,"Change eq 443 to eq 80 in ACL rule 10"
+C-027,NAT inside/outside interfaces swapped,NAT,Internal hosts 192.168.1.0/24 cannot reach external networks via NAT,R1 Gi0/0 faces LAN; Gi0/1 faces ISP,"R1# show ip nat translations
+(empty)
+
+R1# show ip nat statistics
+Total active translations: 0
+Outside interfaces:
+  GigabitEthernet0/0
+Inside interfaces:
+  GigabitEthernet0/1
+
+R1# show running-config | include nat
+ip nat inside source list 1 interface GigabitEthernet0/1 overload
+interface GigabitEthernet0/0
+ ip nat outside
+interface GigabitEthernet0/1
+ ip nat inside",NAT inside/outside designations are swapped: Gi0/0 (LAN-facing) is marked outside and Gi0/1 (ISP-facing) is marked inside,3,NAT inside/outside,high,show ip nat statistics,"Swap: Gi0/0 should be ip nat inside; Gi0/1 should be ip nat outside; update overload to reference Gi0/1"
+C-028,NAT access list not matching internal network,NAT,Hosts on 192.168.1.0/24 cannot reach external networks; NAT table stays empty,R1 performing PAT for LAN; Gi0/1 is the outside interface,"R1# show ip nat translations
+(empty)
+
+R1# show access-lists
+Standard IP access list 1
+    10 permit 10.0.0.0 0.0.0.255
+
+R1# show ip nat statistics
+Total active translations: 0
+Inside interfaces:
+  GigabitEthernet0/0
+Outside interfaces:
+  GigabitEthernet0/1
+
+R1# show running-config | include nat
+ip nat inside source list 1 interface GigabitEthernet0/1 overload
+
+R1# show ip interface brief
+Interface              IP-Address      OK? Method Status                Protocol
+GigabitEthernet0/0     192.168.1.1     YES manual up                    up
+GigabitEthernet0/1     203.0.113.2     YES manual up                    up",NAT source list 1 permits 10.0.0.0/24 but the internal network is 192.168.1.0/24 — no traffic matches the ACL,3,NAT with ACL,medium,show access-lists 1,"Replace ACL: no access-list 1 / access-list 1 permit 192.168.1.0 0.0.0.255"
+C-029,Wireless SSID not broadcasting,Wireless,Clients cannot see the Wi-Fi network in available networks list,WLC managing AP1; SSID CorpWiFi should be visible,"WLC> show wlan summary
+WLAN ID  WLAN Profile Name  Status   Interface Name
+-------  -----------------  ------   --------------
+1        CorpWiFi           Disabled management
+
+WLC> show wlan 1
+WLAN Identifier..................: 1
+Profile Name.....................: CorpWiFi
+Network Name (SSID)..............: CorpWiFi
+Status...........................: Disabled
+Broadcast SSID...................: Enabled",WLAN profile CorpWiFi is administratively disabled so the SSID is not being broadcast by any AP,1,Wireless WLAN management,medium,show wlan 1,"Enable the WLAN: wlan enable 1"
+C-030,Wireless client authentication failure due to wrong security mode,Wireless,Client sees the SSID but fails to connect with correct WPA2 password,AP configured with WPA2; client attempting to connect,"WLC> show wlan 1
+WLAN Identifier..................: 1
+Profile Name.....................: CorpWiFi
+Network Name (SSID)..............: CorpWiFi
+Status...........................: Enabled
+Broadcast SSID...................: Enabled
+Security
+  802.11 Authentication...........: Open System
+  WPA+WPA2.......................: Enabled
+    WPA2 Encryption...............: AES
+    Auth Key Management...........: 802.1x
+
+WLC> show client summary
+Number of Clients...............: 0
+
+Client authentication log:
+  MAC: 0011.2233.4455 - Auth failure - EAP timeout",WLAN is configured for 802.1x (enterprise) authentication but clients are attempting PSK authentication — auth key management mismatch,1,Wireless security modes,high,show wlan 1 security,"Change Auth Key Management from 802.1x to PSK and configure a pre-shared key"
