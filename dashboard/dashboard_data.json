@@ -1,0 +1,33 @@
+{
+    "total_cases": 30,
+    "issue_type_distribution": {
+        "VLAN": 5,
+        "Gateway/IP": 5,
+        "Routing": 5,
+        "DHCP": 4,
+        "ACL": 4,
+        "DNS": 3,
+        "NAT": 2,
+        "Wireless": 2
+    },
+    "severity_distribution": {
+        "medium": 13,
+        "high": 13,
+        "low": 4
+    },
+    "review_decisions": {
+        "Accepted": 21,
+        "Edited": 7,
+        "Rejected": 2
+    },
+    "agreement_rate": 0.7,
+    "correction_rate": 0.3,
+    "rule_finding_counts": {
+        "check_missing_route": 3,
+        "check_wrong_mask": 1,
+        "check_gateway_mismatch": 1,
+        "check_duplicate_ip": 2,
+        "check_missing_vlan": 1,
+        "check_interface_down": 0
+    }
+}
