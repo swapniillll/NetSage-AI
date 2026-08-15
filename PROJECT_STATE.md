@@ -10,7 +10,7 @@ This file is the single source of truth for "what's actually built." Every task 
 - [x] TASK-006 — AI Diagnosis Prompt Design
 - [x] TASK-007 — AI Diagnosis Script
 - [x] TASK-008 — JSON Schema Validation & Retry Logic
-- [ ] TASK-009 — Pipeline Integration: Run All Cases
+- [x] TASK-009 — Pipeline Integration: Run All Cases
 - [ ] TASK-010 — Human Review Workflow
 - [ ] TASK-011 — Dashboard Metrics & Charts
 - [ ] TASK-012 — Responsible AI Log
@@ -31,6 +31,7 @@ TASK-005: tests/test_rule_checker.py, data/rule_results_sample.txt
 TASK-006: prompts_ai/diagnose_prompt.md
 TASK-007: scripts/diagnose.py, tests/test_diagnose_smoke.py. (Note: diagnoses.json contains 0 real API-generated entries because the execution environment lacked ANTHROPIC_API_KEY; the mocked smoke test verified the 3-case pipeline. Full dataset run happens in TASK-009.)
 TASK-008: scripts/validate_diagnosis.py, tests/test_validate_diagnosis.py
+TASK-009: scripts/run_pipeline.py, tests/test_pipeline_integration.py. (Note: The real full dataset run is BLOCKED due to an unavailable ANTHROPIC_API_KEY credential. Output generation deferred).
 
 ## Known Issues / Deferred Items
 _(anything explicitly skipped or flagged needs_manual_review — list here so nothing is silently lost)_
