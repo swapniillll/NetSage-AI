@@ -100,3 +100,43 @@ def test_smoke_diagnose(mock_call_llm, mock_dataset, temp_diagnoses_file):
     api_key = os.environ.get("ANTHROPIC_API_KEY")
     if api_key:
         assert api_key not in dump_str
+
+@patch("scripts.diagnose.call_llm")
+def test_smoke_diagnose_retry_success(mock_call_llm, mock_dataset, temp_diagnoses_file):
+    # First response invalid, second response valid
+    mock_call_llm.side_effect = [
+        "not a valid json object",
+        MOCK_JSON_RESPONSE
+    ]
+    
+    diagnose.run_case("C-002", mock_dataset, output_path=temp_diagnoses_file)
+    
+    assert mock_call_llm.call_count == 2
+    second_call_prompt = mock_call_llm.call_args_list[1][0][0]
+    assert "your last response was invalid JSON" in second_call_prompt
+    
+    with open(temp_diagnoses_file, "r") as f:
+        data = json.load(f)
+    assert "C-002" in data
+    assert "parsed_diagnosis" in data["C-002"]
+
+@patch("scripts.diagnose.call_llm")
+def test_smoke_diagnose_retry_fail(mock_call_llm, mock_dataset, temp_diagnoses_file):
+    # First and second response invalid -> manual review
+    bad_resp_1 = "bad response 1"
+    bad_resp_2 = "bad response 2"
+    mock_call_llm.side_effect = [bad_resp_1, bad_resp_2]
+    
+    diagnose.run_case("C-003", mock_dataset, output_path=temp_diagnoses_file)
+    
+    assert mock_call_llm.call_count == 2
+    
+    with open(temp_diagnoses_file, "r") as f:
+        data = json.load(f)
+    assert "C-003" in data
+    
+    record = data["C-003"]
+    assert record["status"] == "needs_manual_review"
+    assert record["raw_response"] == bad_resp_2 # Save SECOND invalid response
+    assert "parsed_diagnosis" not in record
+

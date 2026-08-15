@@ -11,6 +11,7 @@ from anthropic import Anthropic
 # Add parent dir to path so we can import from scripts
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from scripts.rule_checker import run_all
+from scripts.validate_diagnosis import validate
 
 PROMPT_FILE = "prompts_ai/diagnose_prompt.md"
 CASES_FILE = "data/cases.csv"
@@ -62,31 +63,6 @@ def call_llm(prompt_text: str, model: str) -> str:
     )
     return response.content[0].text
 
-def parse_diagnosis(raw_json: str) -> Dict[str, Any]:
-    """Parse the raw JSON string into the strict TASK-006 schema fields without applying retry logic."""
-    # Sometimes LLMs wrap json in markdown blocks despite instructions.
-    # We strip basic markdown wrappers for stability, but we do NOT build a complex repair engine (TASK-008).
-    clean_json = raw_json.strip()
-    if clean_json.startswith("```json"):
-        clean_json = clean_json[7:]
-    if clean_json.startswith("```"):
-        clean_json = clean_json[3:]
-    if clean_json.endswith("```"):
-        clean_json = clean_json[:-3]
-        
-    data = json.loads(clean_json.strip())
-    
-    # Strictly extract only the allowed 6 fields
-    result = {
-        "root_cause": data["root_cause"],
-        "confidence": float(data["confidence"]),
-        "osi_layer": data["osi_layer"],
-        "evidence": list(data["evidence"]),
-        "next_command": data["next_command"],
-        "fix_steps": list(data["fix_steps"])
-    }
-    return result
-
 def run_case(case_id: str, df: pd.DataFrame, output_path: str = DIAGNOSES_FILE):
     """Run the complete pipeline for a single case and save the result."""
     print(f"Processing case: {case_id}...")
@@ -117,20 +93,43 @@ def run_case(case_id: str, df: pd.DataFrame, output_path: str = DIAGNOSES_FILE):
         print(f"LLM API Call failed for {case_id}: {e}")
         return
         
-    # 9. Parse returned JSON
-    try:
-        parsed_data = parse_diagnosis(raw_response)
-    except Exception as e:
-        print(f"JSON Parsing failed for {case_id}: {e}\nRaw response was:\n{raw_response}")
-        return
+    # 9. JSON Validation and Single Retry logic
+    parsed_data = validate(raw_response)
+    
+    if parsed_data.get("status") == "validation_error":
+        print(f"Validation failed for {case_id}. Attempting exactly ONE retry...")
+        retry_prompt = prompt_text + "\n\nCRITICAL: your last response was invalid JSON — return only valid JSON matching the schema."
+        try:
+            raw_response_2 = call_llm(retry_prompt, MODEL_NAME)
+        except Exception as e:
+            print(f"LLM API Call failed for {case_id} during retry: {e}")
+            return
+            
+        parsed_data = validate(raw_response_2)
         
+        if parsed_data.get("status") == "validation_error":
+            print(f"Second validation failed for {case_id}. Saving for manual review.")
+            record = {
+                "case_id": case_id,
+                "status": "needs_manual_review",
+                "raw_response": raw_response_2
+            }
+        else:
+            record = {
+                "raw_response": raw_response_2,
+                "parsed_diagnosis": parsed_data,
+                "prompt_version": PROMPT_VERSION,
+                "model": MODEL_NAME
+            }
+    else:
+        record = {
+            "raw_response": raw_response,
+            "parsed_diagnosis": parsed_data,
+            "prompt_version": PROMPT_VERSION,
+            "model": MODEL_NAME
+        }
+    
     # 10. Save to diagnoses.json
-    record = {
-        "raw_response": raw_response,
-        "parsed_diagnosis": parsed_data,
-        "prompt_version": PROMPT_VERSION,
-        "model": MODEL_NAME
-    }
     
     # Load existing to append/update
     diagnoses = {}
