@@ -17,7 +17,7 @@ Migration: Anthropic → Gemini completed
 - [x] TASK-007 — AI Diagnosis Script
 - [x] TASK-008 — JSON Schema Validation & Retry Logic
 - [x] TASK-009 — Pipeline Integration: Run All Cases
-- [ ] TASK-010 — Human Review Workflow
+- [x] TASK-010 — Human Review Workflow
 - [ ] TASK-011 — Dashboard Metrics & Charts
 - [ ] TASK-012 — Responsible AI Log
 - [ ] TASK-013 — Testing & PS Acceptance Checklist
@@ -38,6 +38,7 @@ TASK-006: prompts_ai/diagnose_prompt.md
 TASK-007: scripts/diagnose.py, tests/test_diagnose_smoke.py. (Note: diagnoses.json contains 0 real API-generated entries because the execution environment lacked ANTHROPIC_API_KEY; the mocked smoke test verified the 3-case pipeline. Full dataset run happens in TASK-009.)
 TASK-008: scripts/validate_diagnosis.py, tests/test_validate_diagnosis.py
 TASK-009: scripts/run_pipeline.py, tests/test_pipeline_integration.py, data/rule_results.json, data/diagnoses.json. (Real full dataset run completed using Gemini 3.5 Flash-Lite. 30 cases processed. 30 successful diagnoses. 0 needs_manual_review. 0 unexpected pipeline crashes.)
+TASK-010: data/review_log.csv, tests/test_review_log.py. (Human review completed for all 30 cases: 21 Accepted, 7 Edited, 2 Rejected. Nine cases required substantive human correction.)
 
 ## Known Issues / Deferred Items
 _(anything explicitly skipped or flagged needs_manual_review — list here so nothing is silently lost)_

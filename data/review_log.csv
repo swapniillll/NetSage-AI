@@ -1,0 +1,31 @@
+case_id,decision,corrected_fields,reason,reviewer
+C-001,Edited,"root_cause,confidence",The AI correctly identified the VLAN issue but unnecessarily treated the evidence as insufficient. The supplied MAC address table places the PC-facing Fa0/1 port in VLAN 1 while the topology/case expectation requires VLAN 10.,Human Reviewer
+C-002,Edited,"root_cause,confidence",The AI identified the VLAN trunk restriction but unnecessarily required SW2 evidence. SW1's show interfaces trunk output directly shows that VLAN 10 is absent from the allowed VLAN list.,Human Reviewer
+C-003,Edited,"root_cause,confidence",The AI identified the missing IP address on Gi0/0.20 but presented it as uncertain. The supplied running configuration explicitly shows the sub-interface without an IP address.,Human Reviewer
+C-004,Accepted,,The AI diagnosis is materially correct and grounded in supplied evidence.,Human Reviewer
+C-005,Accepted,,The AI diagnosis is materially correct and grounded in supplied evidence.,Human Reviewer
+C-006,Accepted,,The AI diagnosis is materially correct and grounded in supplied evidence.,Human Reviewer
+C-007,Accepted,,The AI diagnosis is materially correct and grounded in supplied evidence.,Human Reviewer
+C-008,Edited,"root_cause,confidence","The AI identified the mismatched host masks but assigned unnecessarily low confidence. PC1 shows 255.255.255.0 while PC2 shows 255.255.240.0, and the deterministic wrong-mask rule is triggered.",Human Reviewer
+C-009,Accepted,,The AI diagnosis is materially correct and grounded in supplied evidence.,Human Reviewer
+C-010,Edited,"root_cause,confidence",The AI correctly observed 0.0.0.0 but unnecessarily requested DHCP-side evidence. The supplied PC1 ipconfig output itself establishes that the host has no valid IP address.,Human Reviewer
+C-011,Accepted,,The AI diagnosis is materially correct and grounded in supplied evidence.,Human Reviewer
+C-012,Edited,"root_cause,confidence","The AI correctly identified the DHCP pool exhaustion evidence but treated it as insufficient. The pool shows Total addresses: 5 and Leased addresses: 5, directly establishing exhaustion.",Human Reviewer
+C-013,Edited,"root_cause,confidence,fix_steps","The AI correctly identified the missing helper configuration but unnecessarily framed it as unconfirmed. The supplied Gi0/0.20 configuration contains the VLAN encapsulation but no ip helper-address, and the review correction makes the missing helper explicit.",Human Reviewer
+C-014,Accepted,,The AI diagnosis is materially correct and grounded in supplied evidence.,Human Reviewer
+C-015,Rejected,"root_cause,fix_steps,confidence",REJECT because the AI failed to identify the specific DNS address discrepancy required by the case. The PC is configured with DNS server 192.168.1.50 while the supplied topology/case expectation identifies 192.168.1.5. The AI therefore failed to provide the required root cause and corresponding fix.,Human Reviewer
+C-016,Accepted,,The AI diagnosis is materially correct and grounded in supplied evidence.,Human Reviewer
+C-017,Accepted,,The AI diagnosis is materially correct and grounded in supplied evidence.,Human Reviewer
+C-018,Accepted,,The AI diagnosis is materially correct and grounded in supplied evidence.,Human Reviewer
+C-019,Accepted,,The AI diagnosis is materially correct and grounded in supplied evidence.,Human Reviewer
+C-020,Accepted,,The AI diagnosis is materially correct and grounded in supplied evidence.,Human Reviewer
+C-021,Accepted,,The AI diagnosis is materially correct and grounded in supplied evidence.,Human Reviewer
+C-022,Accepted,,The AI diagnosis is materially correct and grounded in supplied evidence.,Human Reviewer
+C-023,Accepted,,The AI diagnosis is materially correct and grounded in supplied evidence.,Human Reviewer
+C-024,Accepted,,The AI diagnosis is materially correct and grounded in supplied evidence.,Human Reviewer
+C-025,Accepted,,The AI diagnosis is materially correct and grounded in supplied evidence.,Human Reviewer
+C-026,Accepted,,The AI diagnosis is materially correct and grounded in supplied evidence.,Human Reviewer
+C-027,Rejected,"root_cause,fix_steps,confidence","REJECT because the AI failed to reconcile the NAT configuration with the topology note. The topology identifies Gi0/0 as the LAN/inside interface, while the running configuration marks Gi0/0 as ip nat outside. The AI therefore missed the material inside/outside inversion and did not provide the required correction.",Human Reviewer
+C-028,Accepted,,The AI diagnosis is materially correct and grounded in supplied evidence.,Human Reviewer
+C-029,Accepted,,The AI diagnosis is materially correct and grounded in supplied evidence.,Human Reviewer
+C-030,Accepted,,The AI diagnosis is materially correct and grounded in supplied evidence.,Human Reviewer
