@@ -70,7 +70,7 @@ Default Gateway.................: 192.168.1.100
 
 R1# show ip interface brief
 Interface              IP-Address      OK? Method Status                Protocol
-GigabitEthernet0/0     192.168.1.1     YES manual up                    up",PC default gateway 192.168.1.100 does not match the router interface 192.168.1.1,3,Default gateway configuration,medium,show ip route,"Set PC default gateway to 192.168.1.1"
+GigabitEthernet0/0     192.168.1.1     YES manual up                    up",PC default gateway 192.168.1.100 does not match the router interface 192.168.1.1,3,Default gateway configuration,medium,ping 192.168.1.1 from PC1,"Set PC default gateway to 192.168.1.1"
 C-007,Duplicate IP address conflict,Gateway/IP,PC1 intermittently loses connectivity and sees duplicate IP warning,PC1 and Server1 both on VLAN 10 subnet 192.168.10.0/24,"PC1> ipconfig
 IP Address......................: 192.168.10.50
 Subnet Mask.....................: 255.255.255.0
