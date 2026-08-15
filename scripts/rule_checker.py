@@ -105,51 +105,41 @@ def check_duplicate_ip(show_outputs: str) -> Finding:
 # ---------------------------------------------------------------------------
 
 def check_wrong_mask(show_outputs: str) -> Finding:
-    """Detect mismatched subnet masks between devices on the same logical network.
+    """Detect mismatched subnet masks between host PCs on the same logical network.
 
-    Triggers when two or more subnet masks are found in the evidence and they
-    differ from each other (e.g. one host has /24 and another has /20).
+    Triggers ONLY when two or more subnet masks are found in PC *ipconfig*
+    evidence and they differ from each other (e.g. one host has /24 and another has /20).
+    It deliberately ignores router interface masks to avoid false positives in
+    legitimate multi-subnet/VLSM topologies.
     """
     rule = "check_wrong_mask"
 
-    # Collect masks from ipconfig-style output
+    # Collect masks ONLY from ipconfig-style output
     masks_ipconfig = re.findall(
         r"Subnet Mask[.\s]*:\s*([\d]+\.[\d]+\.[\d]+\.[\d]+)", show_outputs
     )
 
-    # Collect masks from running-config style  "ip address X.X.X.X M.M.M.M"
-    masks_config = re.findall(
-        r"ip address\s+[\d.]+\s+([\d]+\.[\d]+\.[\d]+\.[\d]+)", show_outputs
-    )
-
-    # Collect masks from show ip interface brief /X notation
-    cidr_masks = re.findall(
-        r"Internet [Aa]ddress (?:is )?[\d.]+/(\d+)", show_outputs
-    )
-
-    all_masks = masks_ipconfig + masks_config
-    # Normalise CIDR to dotted for comparison is complex; keep them separate
-    # but still check for CIDR mismatches among themselves
-    if len(cidr_masks) > 1 and len(set(cidr_masks)) > 1:
+    if not masks_ipconfig:
         return Finding(
-            rule_name=rule,
-            triggered=True,
-            detail=f"Mismatched CIDR prefix lengths found: "
-                   f"{', '.join('/' + m for m in cidr_masks)}",
+            rule_name=rule, triggered=False,
+            detail="No PC ipconfig subnet masks found in evidence"
         )
 
     # Check dotted-decimal masks
-    unique_masks = set(all_masks)
+    unique_masks = set(masks_ipconfig)
     zero_masks = {"0.0.0.0"}
     unique_masks -= zero_masks  # ignore unconfigured hosts
     if len(unique_masks) > 1:
         return Finding(
             rule_name=rule,
             triggered=True,
-            detail=f"Mismatched subnet masks detected: {', '.join(sorted(unique_masks))}",
+            detail=f"Mismatched PC subnet masks detected in ipconfig: {', '.join(sorted(unique_masks))}",
         )
 
-    return Finding(rule_name=rule, triggered=False, detail="No subnet mask mismatch detected")
+    return Finding(
+        rule_name=rule, triggered=False,
+        detail="No PC subnet mask mismatch detected"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -176,12 +166,19 @@ def check_gateway_mismatch(show_outputs: str) -> Finding:
         )
 
     # Extract router interface IPs from show ip interface brief
-    router_ips = re.findall(
-        r"^(\S+)\s+([\d]+\.[\d]+\.[\d]+\.[\d]+)\s+YES\s+\S+\s+up\s+up",
-        show_outputs,
-        re.MULTILINE,
-    )
-    router_ip_set = {ip for _, ip in router_ips}
+    # Conservatively skip blocks that belong to a Server to avoid false positives
+    router_ip_set = set()
+    for block in re.split(r'(?m)^(?=\S+#)', show_outputs):
+        if 'show ip interface' in block.lower():
+            if re.search(r'^[Ss]erver\d*#', block):
+                continue
+            ips = re.findall(
+                r"^(\S+)\s+([\d]+\.[\d]+\.[\d]+\.[\d]+)\s+YES\s+\S+\s+up\s+up",
+                block,
+                re.MULTILINE,
+            )
+            for _, ip in ips:
+                router_ip_set.add(ip)
 
     # Also extract from DHCP default-router config
     dhcp_gw = re.findall(r"default-router\s+([\d.]+)", show_outputs)
