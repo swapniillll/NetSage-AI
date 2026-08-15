@@ -3,7 +3,7 @@ This file is the single source of truth for "what's actually built." Every task 
 
 ## CURRENT PROVIDER STATUS
 Active LLM provider: Google Gemini
-Model: gemini-2.5-flash
+Model: gemini-3.5-flash-lite
 Credential: GEMINI_API_KEY
 Migration: Anthropic → Gemini completed
 

@@ -18,7 +18,7 @@ PROMPT_FILE = "prompts_ai/diagnose_prompt.md"
 CASES_FILE = "data/cases.csv"
 DIAGNOSES_FILE = "data/diagnoses.json"
 PROMPT_VERSION = "v1"
-MODEL_NAME = "gemini-2.5-flash"
+MODEL_NAME = "gemini-3.5-flash-lite"
 
 def load_environment():
     """Loads environment variables without hardcoding secrets."""
@@ -60,6 +60,7 @@ def call_llm(prompt_text: str, model: str) -> str:
             system_instruction="You are a senior network-engineer helper AI within the NetSage troubleshooting platform.",
             temperature=0.0,
             max_output_tokens=1024,
+            automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
         )
     )
     return response.text
