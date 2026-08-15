@@ -8,7 +8,7 @@ This file is the single source of truth for "what's actually built." Every task 
 - [x] TASK-004 — Python Rule Checker Core
 - [x] TASK-005 — Rule Checker Unit Tests
 - [x] TASK-006 — AI Diagnosis Prompt Design
-- [ ] TASK-007 — AI Diagnosis Script
+- [x] TASK-007 — AI Diagnosis Script
 - [ ] TASK-008 — JSON Schema Validation & Retry Logic
 - [ ] TASK-009 — Pipeline Integration: Run All Cases
 - [ ] TASK-010 — Human Review Workflow
@@ -29,6 +29,7 @@ TASK-003: data/cases.csv (30 rows: VLAN 5, Gateway/IP 5, DHCP 4, DNS 3, Routing 
 TASK-004: scripts/rule_checker.py
 TASK-005: tests/test_rule_checker.py, data/rule_results_sample.txt
 TASK-006: prompts_ai/diagnose_prompt.md
+TASK-007: scripts/diagnose.py, tests/test_diagnose_smoke.py. (Note: diagnoses.json has 3 sample entries only, full run happens in TASK-009. Mock test handled sample verification due to missing API key.)
 
 ## Known Issues / Deferred Items
 _(anything explicitly skipped or flagged needs_manual_review — list here so nothing is silently lost)_
