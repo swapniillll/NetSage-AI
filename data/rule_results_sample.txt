@@ -1,0 +1,61 @@
+Sample Output for Python Rule Checker Core
+==========================================
+
+Case: C-001 - PC cannot reach gateway due to wrong VLAN
+Category: VLAN
+--------------------------------------------------
+Rule: check_duplicate_ip
+Triggered: False
+Detail: No duplicate IPs detected
+
+Rule: check_wrong_mask
+Triggered: False
+Detail: No PC ipconfig subnet masks found in evidence
+
+Rule: check_gateway_mismatch
+Triggered: False
+Detail: No default gateway found in evidence to check
+
+Rule: check_interface_down
+Triggered: False
+Detail: All detected interfaces are up/up
+
+Rule: check_missing_vlan
+Triggered: False
+Detail: No missing VLAN issues detected
+
+Rule: check_missing_route
+Triggered: False
+Detail: No missing route issues detected
+
+==================================================
+
+Case: C-007 - Duplicate IP address conflict
+Category: Gateway/IP
+--------------------------------------------------
+Rule: check_duplicate_ip
+Triggered: True
+Detail: Duplicate IP detected: 192.168.10.50 (syslog %IP-4-DUPADDR)
+
+Rule: check_wrong_mask
+Triggered: False
+Detail: No PC subnet mask mismatch detected
+
+Rule: check_gateway_mismatch
+Triggered: False
+Detail: Default gateway matches router interface IP
+
+Rule: check_interface_down
+Triggered: False
+Detail: All detected interfaces are up/up
+
+Rule: check_missing_vlan
+Triggered: False
+Detail: No missing VLAN issues detected
+
+Rule: check_missing_route
+Triggered: False
+Detail: No missing route issues detected
+
+==================================================
+
