@@ -29,7 +29,7 @@ TASK-003: data/cases.csv (30 rows: VLAN 5, Gateway/IP 5, DHCP 4, DNS 3, Routing 
 TASK-004: scripts/rule_checker.py
 TASK-005: tests/test_rule_checker.py, data/rule_results_sample.txt
 TASK-006: prompts_ai/diagnose_prompt.md
-TASK-007: scripts/diagnose.py, tests/test_diagnose_smoke.py. (Note: diagnoses.json has 3 sample entries only, full run happens in TASK-009. Mock test handled sample verification due to missing API key.)
+TASK-007: scripts/diagnose.py, tests/test_diagnose_smoke.py. (Note: diagnoses.json contains 0 real API-generated entries because the execution environment lacked ANTHROPIC_API_KEY; the mocked smoke test verified the 3-case pipeline. Full dataset run happens in TASK-009.)
 
 ## Known Issues / Deferred Items
 _(anything explicitly skipped or flagged needs_manual_review — list here so nothing is silently lost)_
