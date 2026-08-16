@@ -42,3 +42,7 @@ def test_dashboard_metrics():
                 else:
                     t_counts[rn] = 1
     assert dash['rule_finding_counts'] == t_counts
+
+    # Test correction rate
+    expected_correction = (rev_counts.get('Edited', 0) + rev_counts.get('Rejected', 0)) / len(df_cases)
+    assert pytest.approx(dash['correction_rate']) == expected_correction
