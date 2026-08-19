@@ -66,6 +66,8 @@ function buildReviewMap() {
   return m;
 }
 
+let isHistoryLoaded = false;
+
 /* ── Navigation ─────────────────────────────────────────────────────────── */
 function showView(name) {
   if (activeView === name && name !== 'explorer') return;   // skip re-render except explorer
@@ -93,6 +95,16 @@ function showView(name) {
   /* Resize charts when switching to overview */
   if (name === 'overview') {
     requestAnimationFrame(resizeCharts);
+  } else if (name === 'history') {
+    if (!isHistoryLoaded) {
+      loadHistory();
+      isHistoryLoaded = true;
+    }
+  } else if (name === 'diagnose') {
+    if (!currentLiveCaseId && typeof startNewLiveSession === 'function') {
+      startNewLiveSession();
+      loadLiveCasesDropdown();
+    }
   }
 }
 
@@ -819,6 +831,415 @@ function renderWorkflow() {
       </div>`;
   }).join('');
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   VIEW 6 — LIVE DIAGNOSIS
+══════════════════════════════════════════════════════════════════════════ */
+
+let currentLiveCaseId = null;
+let currentDiagnosisRecord = null;
+let currentReviewDecision = null;
+
+function loadLiveCasesDropdown() {
+  const sel = $('diag-case-select');
+  if (!sel) return;
+  const opts = D.cases.map(c => `<option value="${c.case_id}">${c.case_id} - ${c.title}</option>`);
+  sel.innerHTML += opts.join('');
+}
+
+function loadSelectedLiveCase() {
+  const caseId = $('diag-case-select').value;
+  if (!caseId) {
+    startNewLiveSession();
+    return;
+  }
+  const c = getCaseById(caseId);
+  if (c) {
+    currentLiveCaseId = `LIVE-${c.case_id}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
+    clearLiveForm();
+    $('diag-case-select').value = caseId;
+    $('diag-symptom').value = c.symptom || '';
+    $('diag-topology').value = c.topology_note || '';
+    $('diag-show-outputs').value = c.show_outputs || '';
+  }
+}
+
+function updateStepBadge(step, isActive) {
+  const b = $(`step-${step}`);
+  if (!b) return;
+  if (isActive) {
+    b.className = 'badge';
+    b.style.background = 'var(--accent)';
+    b.style.color = 'white';
+  } else {
+    b.className = 'badge ok';
+    b.style.background = 'var(--bg-base)';
+    b.style.color = 'var(--text-muted)';
+  }
+}
+
+function clearLiveForm() {
+  $('diag-case-select').value = '';
+  $('diag-symptom').value = '';
+  $('diag-topology').value = '';
+  $('diag-show-outputs').value = '';
+
+  $('live-rule-area').style.display = 'none';
+  $('live-validation-area').style.display = 'none';
+  $('live-result-area').style.display = 'none';
+  $('live-review-area').style.display = 'none';
+  $('live-verification-area').style.display = 'none';
+  $('live-complete-area').style.display = 'none';
+  $('live-error-area').style.display = 'none';
+
+  $('run-diagnose-btn').disabled = true;
+  currentDiagnosisRecord = null;
+  currentReviewDecision = null;
+
+  const el = $('live-session-id');
+  if (el) el.textContent = currentLiveCaseId ? `Active Session: ${currentLiveCaseId}` : '';
+
+  for (let i = 2; i <= 6; i++) updateStepBadge(i, false);
+}
+
+function startNewLiveSession() {
+  const dateStr = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14);
+  const randomSuffix = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+  currentLiveCaseId = `LIVE-${dateStr}-${randomSuffix}`;
+  clearLiveForm();
+}
+
+async function runLiveRuleCheck() {
+  const showOutputs = $('diag-show-outputs').value.trim();
+  if (!showOutputs) {
+    showLiveError('Please provide Show-Command Outputs.');
+    return;
+  }
+
+  const btn = $('run-rule-btn');
+  const txt = $('rule-btn-text');
+  const sp = $('rule-spinner');
+  btn.disabled = true; txt.textContent = 'Checking...'; sp.style.display = '';
+  $('live-error-area').style.display = 'none';
+
+  try {
+    const res = await fetch('/api/rules', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ show_outputs: showOutputs })
+    });
+    if (!res.ok) throw new Error(`API returned ${res.status}`);
+    const findings = await res.json();
+
+    // Render findings
+    $('live-rule-tbody').innerHTML = findings.map(f => {
+      const badge = f.triggered ? '<span class="badge triggered">⚠ Triggered</span>' : '<span class="badge ok">✓ Not triggered</span>';
+      return `<tr><td>${esc(f.rule_name)}</td><td>${badge}</td><td>${esc(f.detail)}</td></tr>`;
+    }).join('');
+
+    $('live-rule-area').style.display = '';
+    $('run-diagnose-btn').disabled = false;
+    updateStepBadge(2, true);
+
+  } catch (err) {
+    showLiveError("Failed to fetch rule check: Make sure local_server.py is running!");
+  } finally {
+    btn.disabled = false; txt.textContent = '🔍 Run Rule Check'; sp.style.display = 'none';
+  }
+}
+
+async function runLiveDiagnosis() {
+  $('live-error-area').style.display = 'none';
+  $('live-validation-area').style.display = 'none';
+  $('live-result-area').style.display = 'none';
+  $('live-review-area').style.display = 'none';
+
+  const symptom = $('diag-symptom').value.trim();
+  const topology = $('diag-topology').value.trim();
+  const showOutputs = $('diag-show-outputs').value.trim();
+
+  const btn = $('run-diagnose-btn');
+  const txt = $('diagnose-btn-text');
+  const sp = $('diagnose-spinner');
+  btn.disabled = true; txt.textContent = 'Diagnosing...'; sp.style.display = '';
+
+  try {
+    const res = await fetch('/api/diagnose', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: currentLiveCaseId, symptom, topology, show_outputs: showOutputs })
+    });
+
+    if (!res.ok) {
+      const errBody = await res.json();
+      throw new Error(errBody.message || `API error ${res.status}`);
+    }
+
+    const data = await res.json();
+    currentDiagnosisRecord = data;
+    updateStepBadge(3, true);
+    updateStepBadge(4, true);
+
+    if (data.status === 'needs_manual_review') {
+      $('live-fallback-json').textContent = data.raw_response;
+      $('live-validation-area').style.display = '';
+    } else {
+      renderLiveResult(data.parsed_diagnosis, data.raw_response);
+      $('live-review-area').style.display = '';
+      $('review-extra').style.display = 'none';
+      $('review-reason').value = '';
+      $('review-status').style.display = 'none';
+    }
+  } catch (err) {
+    showLiveError(err.message || 'Diagnosis failed. Check backend logs and GEMINI_API_KEY config in .env.');
+  } finally {
+    btn.disabled = false; txt.textContent = '⚡ Run AI Diagnosis'; sp.style.display = 'none';
+  }
+}
+
+function showLiveError(msg) {
+  $('live-error-area').style.display = '';
+  $('live-error-msg').textContent = msg;
+}
+
+function submitReviewAction(decision) {
+  currentReviewDecision = decision;
+
+  const editForm = $('edit-diagnosis-form');
+  if (editForm) {
+    if (decision === 'Edited') {
+      editForm.style.display = 'block';
+      const pd = currentDiagnosisRecord?.parsed_diagnosis || {};
+      $('edit-root-cause').value = pd.root_cause || '';
+      $('edit-osi-layer').value = pd.osi_layer || '';
+      $('edit-next-command').value = pd.next_command || '';
+      let fixes = pd.fix_steps;
+      if (Array.isArray(fixes)) fixes = fixes.join('\n');
+      $('edit-fix-steps').value = (fixes || '');
+    } else {
+      editForm.style.display = 'none';
+    }
+  }
+
+  if (decision === 'Accepted') {
+    $('review-extra').style.display = 'block';
+    $('review-reason').value = 'Automated Acceptance via UI Action';
+  } else {
+    $('review-extra').style.display = 'block';
+    $('review-reason').value = '';
+    $('review-reason').focus();
+  }
+}
+
+function submitReviewActionFinal() {
+  finalizeReview();
+}
+
+async function finalizeReview() {
+  const reason = $('review-reason').value.trim();
+  if ((currentReviewDecision === 'Edited' || currentReviewDecision === 'Rejected') && !reason) {
+    alert("Please provide a reason for editing or rejecting the diagnosis.");
+    return;
+  }
+
+  const payload = {
+    session_id: currentLiveCaseId,
+    decision: currentReviewDecision,
+    reason: reason
+  };
+
+  if (currentReviewDecision === 'Edited') {
+    const fixesStr = $('edit-fix-steps').value;
+    payload.edited_diagnosis = {
+      root_cause: $('edit-root-cause').value.trim(),
+      osi_layer: $('edit-osi-layer').value.trim(),
+      next_command: $('edit-next-command').value.trim(),
+      fix_steps: fixesStr.split('\n').map(s => s.trim()).filter(Boolean)
+    };
+  }
+
+  try {
+    const res = await fetch('/api/review', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error("Could not save review");
+
+    // update UI
+    $('review-extra').style.display = 'none';
+    $('review-status').style.display = 'block';
+    $('review-status').textContent = `Decision: ${currentReviewDecision} saved!`;
+    updateStepBadge(5, true);
+
+    $('live-verification-area').style.display = '';
+  } catch (e) {
+    showLiveError(e.message);
+  }
+}
+
+async function submitVerification(status) {
+  const evidence = $('verify-evidence').value.trim();
+  try {
+    const res = await fetch('/api/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: currentLiveCaseId, status, evidence })
+    });
+    if (!res.ok) throw new Error("Could not save verification");
+
+    $('verify-status').style.display = 'block';
+    $('verify-status').textContent = `Status: ${status} recorded.`;
+    updateStepBadge(6, true);
+
+    // Final Summary
+    $('live-complete-area').style.display = '';
+    const root = currentDiagnosisRecord?.parsed_diagnosis?.root_cause || '(Manual Review)';
+    $('summary-text').innerHTML = `<strong>Case:</strong> ${esc(currentLiveCaseId)}<br><br><strong>Diagnosis:</strong> ${esc(root)}<br><br><strong>Human Decision:</strong> ${esc(currentReviewDecision)}<br><br><strong>Packet Tracer Verification:</strong> ${status}`;
+
+  } catch (e) {
+    showLiveError(e.message);
+  }
+}
+
+function toggleRawJson() {
+  const el = $('live-raw-json');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function renderLiveResult(d, rawText) {
+  $('live-result-area').style.display = '';
+  $('live-root-cause').textContent = d.root_cause || '(not provided)';
+
+  const conf = typeof d.confidence === 'number' ? d.confidence : 0;
+  const confPct = Math.round(conf * 100);
+  const confCol = confPct >= 70 ? 'var(--accepted-text)' : confPct >= 40 ? 'var(--edited-text)' : 'var(--rejected-text)';
+  $('live-confidence').textContent = confPct + '%';
+  $('live-confidence').style.color = confCol;
+  $('live-confidence-bar').style.width = confPct + '%';
+  $('live-confidence-bar').style.background = confCol;
+
+  $('live-osi-layer').textContent = d.osi_layer || '(not specified)';
+
+  const evList = Array.isArray(d.evidence) ? d.evidence : [String(d.evidence || '')];
+  $('live-evidence').innerHTML = evList.map(e => `<li>${esc(e)}</li>`).join('') || '<li style="color:var(--text-muted)">No evidence listed.</li>';
+
+  $('live-next-command').textContent = d.next_command || '—';
+
+  const fixList = Array.isArray(d.fix_steps) ? d.fix_steps : [String(d.fix_steps || '')];
+  $('live-fix-steps').innerHTML = fixList.map((s, i) => `<li><strong style="color:var(--accent)">${i + 1}.</strong> ${esc(s)}</li>`).join('') || '<li style="color:var(--text-muted)">No fix steps listed.</li>';
+
+  $('live-raw-json').textContent = JSON.stringify(d, null, 2);
+  $('live-raw-json').style.display = 'none';
+  $('live-result-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   VIEW 7 — HISTORY
+══════════════════════════════════════════════════════════════════════════ */
+async function loadHistory() {
+  try {
+    const res = await fetch('/api/sessions');
+    if (!res.ok) throw new Error("Could not fetch sessions");
+    const sessions = await res.json();
+    const tbody = $('history-tbody');
+    if (!tbody) return;
+
+    if (Object.keys(sessions).length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted)">No troubleshooting history available.</td></tr>';
+      return;
+    }
+
+    const rows = Object.values(sessions)
+      .sort((a, b) => (b.timestamp_created || '').localeCompare(a.timestamp_created || ''))
+      .map(s => {
+        const dStat = s.ai_diagnosis ? (s.ai_diagnosis.status === 'needs_manual_review' ? 'Needs Review' : 'Diagnosed') : 'Pending';
+        const rDec = s.review ? s.review.decision : 'Pending';
+        const vStat = s.verification ? s.verification.status : 'Pending';
+        const sDate = new Date(s.timestamp_created).toLocaleString() || 'Unknown';
+        return `<tr>
+          <td class="mono">${esc(s.session_id)}</td>
+          <td>${esc(sDate)}</td>
+          <td>${esc((s.inputs?.symptom || '').substring(0, 40))}...</td>
+          <td>${esc(dStat)}</td>
+          <td>${decisionBadge(rDec)}</td>
+          <td>${esc(vStat)}</td>
+          <td><button class="diag-btn secondary" style="padding:2px 8px;font-size:10px" onclick="loadSessionHistoryView('${esc(s.session_id)}')">View/Reload</button></td>
+        </tr>`;
+      });
+
+    tbody.innerHTML = rows.join('');
+  } catch (e) {
+    console.error("History fetch error:", e);
+  }
+}
+
+async function loadSessionHistoryView(sessionId) {
+  try {
+    const res = await fetch('/api/sessions');
+    const sessions = await res.json();
+    const s = sessions[sessionId];
+    if (!s) return;
+
+    showView('diagnose');
+    currentLiveCaseId = s.session_id;
+    clearLiveForm();
+
+    if (s.inputs) {
+      $('diag-symptom').value = s.inputs.symptom || '';
+      $('diag-topology').value = s.inputs.topology_note || '';
+      $('diag-show-outputs').value = s.inputs.show_outputs || '';
+    }
+
+    if (s.ai_diagnosis) {
+      currentDiagnosisRecord = s.ai_diagnosis;
+      updateStepBadge(3, true); updateStepBadge(4, true);
+      if (s.ai_diagnosis.status === 'needs_manual_review') {
+        $('live-fallback-json').textContent = s.ai_diagnosis.raw_response;
+        $('live-validation-area').style.display = '';
+      } else {
+        renderLiveResult(s.ai_diagnosis.parsed_diagnosis, s.ai_diagnosis.raw_response);
+        $('live-review-area').style.display = '';
+      }
+    }
+
+    if (s.review) {
+      currentReviewDecision = s.review.decision;
+      $('review-extra').style.display = 'none';
+      $('review-status').style.display = 'block';
+      $('review-status').textContent = `Decision: ${currentReviewDecision} loaded from history.`;
+
+      if (s.review.edited_diagnosis) {
+        $('review-status').innerHTML += `<div style="margin-top:10px;padding:10px;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);border-radius:4px;color:rgba(251,191,36,0.9);font-size:11px">
+            <strong>Human Corrected Diagnosis:</strong><br>
+            Root Cause: ${esc(s.review.edited_diagnosis.root_cause)}<br>
+            OSI Layer: ${esc(s.review.edited_diagnosis.osi_layer)}<br>
+            Next Command: ${esc(s.review.edited_diagnosis.next_command)}
+         </div>`;
+      }
+
+      updateStepBadge(5, true);
+      $('live-verification-area').style.display = '';
+    }
+
+    if (s.verification) {
+      $('verify-evidence').value = s.verification.evidence || '';
+      $('verify-status').style.display = 'block';
+      $('verify-status').textContent = `Status: ${s.verification.status} recorded.`;
+      updateStepBadge(6, true);
+      $('live-complete-area').style.display = '';
+      const root = s.ai_diagnosis?.parsed_diagnosis?.root_cause || '(Manual Review)';
+      $('summary-text').innerHTML = `<strong>Case:</strong> ${esc(currentLiveCaseId)}<br><br><strong>Diagnosis:</strong> ${esc(root)}<br><br><strong>Human Decision:</strong> ${esc(currentReviewDecision)}<br><br><strong>Packet Tracer Verification:</strong> ${s.verification.status}`;
+    }
+
+    $('live-session-id').textContent = `Active Session: ${currentLiveCaseId}`;
+
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+
 
 /* ══════════════════════════════════════════════════════════════════════════
    RESPONSIVE — window resize

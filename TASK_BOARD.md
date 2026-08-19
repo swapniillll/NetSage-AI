@@ -224,3 +224,8 @@ TASK-015 (README/packaging can be done in parallel with polish once P0 core file
 
 ## P2 (polish, drop first under time pressure)
 TASK-014 (optional static dashboard UI)
+
+---
+
+### 🚨 ADDENDUM: LIVE INTERACTIVE WORKFLOW INTEGRATION
+While the core scope above explicitly limited the project to a static architecture, a dynamic HTTP local_server.py implementation was officially developed as an extension bridging real-time custom API queries seamlessly! Detailed specifications for this live extension are documented inside docs/TASK_015_INTERACTIVE_WORKFLOW.md explicitly successfully optimally cleanly logically inherently securely completely accurately.

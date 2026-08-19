@@ -17,10 +17,12 @@
     <nav id="mobile-topbar" aria-label="Mobile navigation">
       <span style="font-size:12px;font-weight:700;color:var(--accent);flex-shrink:0;margin-right:6px">⚡ NetSage</span>
       <button class="mobile-nav-btn active" id="m-nav-overview" onclick="showView('overview')">Overview</button>
+      <button class="mobile-nav-btn" id="m-nav-diagnose" onclick="showView('diagnose')">🤖 Diagnose</button>
       <button class="mobile-nav-btn" id="m-nav-explorer" onclick="showView('explorer')">Cases</button>
       <button class="mobile-nav-btn" id="m-nav-review" onclick="showView('review')">Review</button>
       <button class="mobile-nav-btn" id="m-nav-rai" onclick="showView('rai')">Resp. AI</button>
       <button class="mobile-nav-btn" id="m-nav-workflow" onclick="showView('workflow')">Workflow</button>
+      <button class="mobile-nav-btn" id="m-nav-history" onclick="showView('history')">History</button>
       <button class="mobile-nav-btn demo-item" onclick="loadDemo()">C-001 Demo</button>
     </nav>
 
@@ -37,6 +39,9 @@
         <button class="nav-item active" id="nav-overview" onclick="showView('overview')" aria-label="Overview">
           <span class="nav-icon" aria-hidden="true">📊</span> Overview
         </button>
+        <button class="nav-item" id="nav-diagnose" onclick="showView('diagnose')" aria-label="Live Diagnosis">
+          <span class="nav-icon" aria-hidden="true">🤖</span> Live Diagnosis
+        </button>
         <button class="nav-item" id="nav-explorer" onclick="showView('explorer')" aria-label="Case Explorer">
           <span class="nav-icon" aria-hidden="true">🔍</span> Case Explorer
         </button>
@@ -48,6 +53,9 @@
         </button>
         <button class="nav-item" id="nav-workflow" onclick="showView('workflow')" aria-label="Workflow">
           <span class="nav-icon" aria-hidden="true">🗺</span> Workflow
+        </button>
+        <button class="nav-item" id="nav-history" onclick="showView('history')" aria-label="Troubleshooting History">
+          <span class="nav-icon" aria-hidden="true">🕰️</span> History
         </button>
 
         <div class="sidebar-divider"></div>
@@ -447,6 +455,276 @@
           </div>
         </div>
       </section>
+
+      <!-- ═══════════════════════════════════════════════════════════
+         VIEW 6 — LIVE DIAGNOSIS
+    ═══════════════════════════════════════════════════════════ -->
+      <section class="view" id="view-diagnose" aria-label="Live Diagnosis">
+        <div class="page-header">
+          <h1 class="page-title">🤖 Live AI Diagnosis</h1>
+          <p class="page-desc">
+            Load an existing case or enter a custom network problem. Complete the full troubleshooting lifecycle
+            using the local backend adapter to securely access the tested NetSage Python pipeline.
+          </p>
+        </div>
+
+        <!-- Lifecycle indicator -->
+        <div class="section-block"
+          style="padding:16px;background:var(--bg-layer);border-radius:var(--radius-md);margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+          <span class="badge" id="step-1" style="background:var(--accent);color:white">1. Evidence</span>
+          <span style="color:var(--text-muted)">→</span>
+          <span class="badge ok" id="step-2" style="background:var(--bg-base);color:var(--text-muted)">2. Rule
+            Check</span>
+          <span style="color:var(--text-muted)">→</span>
+          <span class="badge ok" id="step-3" style="background:var(--bg-base);color:var(--text-muted)">3. AI
+            Diagnosis</span>
+          <span style="color:var(--text-muted)">→</span>
+          <span class="badge ok" id="step-4" style="background:var(--bg-base);color:var(--text-muted)">4.
+            Validation</span>
+          <span style="color:var(--text-muted)">→</span>
+          <span class="badge ok" id="step-5" style="background:var(--bg-base);color:var(--text-muted)">5. Human
+            Review</span>
+          <span style="color:var(--text-muted)">→</span>
+          <span class="badge ok" id="step-6" style="background:var(--bg-base);color:var(--text-muted)">6.
+            Verification</span>
+        </div>
+
+        <div class="section-block">
+          <label class="section-title" for="diag-case-select">Live Troubleshooting Setup</label>
+          <div style="display:flex;gap:10px;">
+            <button class="diag-btn primary" onclick="startNewLiveSession()">+ Start New Troubleshooting
+              Session</button>
+            <select id="diag-case-select" class="diag-input" style="flex:1" onchange="loadSelectedLiveCase()">
+              <option value="">-- Or Pre-fill an Example Case --</option>
+            </select>
+          </div>
+          <div id="live-session-id" style="font-size:11px;font-weight:700;margin-top:10px;color:var(--accent);"></div>
+        </div>
+
+        <!-- Input form -->
+        <div class="diagnose-form-grid" id="diag-form">
+          <div class="section-block">
+            <label class="section-title" for="diag-symptom">Symptom Observed</label>
+            <textarea id="diag-symptom" class="diag-textarea" rows="3"
+              placeholder="e.g. PC1 cannot ping the default gateway 192.168.1.1. Local hosts are reachable."></textarea>
+          </div>
+          <div class="section-block">
+            <label class="section-title" for="diag-topology">Topology Note</label>
+            <textarea id="diag-topology" class="diag-textarea" rows="3"
+              placeholder="e.g. PC1 connected to SW1 Fa0/1. R1 Gi0/0 is the gateway. SW1 trunk to R1 on Gi0/1."></textarea>
+          </div>
+          <div class="section-block" style="grid-column:1/-1">
+            <label class="section-title" for="diag-show-outputs">Show-Command Outputs</label>
+            <textarea id="diag-show-outputs" class="diag-textarea mono" rows="10"
+              placeholder="Paste Cisco CLI output here"></textarea>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <button class="diag-btn secondary" id="run-rule-btn" onclick="runLiveRuleCheck()">
+            <span id="rule-btn-text">🔍 Run Rule Check</span>
+            <span id="rule-spinner" class="spinner" style="display:none"></span>
+          </button>
+
+          <button class="diag-btn primary" id="run-diagnose-btn" onclick="runLiveDiagnosis()" disabled>
+            <span id="diagnose-btn-text">⚡ Run AI Diagnosis</span>
+            <span id="diagnose-spinner" class="spinner" style="display:none"></span>
+          </button>
+        </div>
+
+        <!-- Rule Check Results Area -->
+        <div id="live-rule-area" style="display:none;margin-top:20px">
+          <div class="section-block">
+            <div class="section-title">Deterministic Rule Findings</div>
+            <div class="table-scroll">
+              <table class="rule-table" aria-label="Live Rule Findings">
+                <thead>
+                  <tr>
+                    <th>Rule</th>
+                    <th>Status</th>
+                    <th>Detail</th>
+                  </tr>
+                </thead>
+                <tbody id="live-rule-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fallback/Validation Area -->
+        <div id="live-validation-area" style="display:none;margin-top:20px">
+          <div class="section-block glass-card" style="padding:14px 18px;border-color:var(--edited-border)">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+              <span style="font-size:20px">⚠️</span>
+              <div>
+                <div style="font-size:12px;font-weight:600;color:var(--edited-text)">Manual Review Required</div>
+                <div style="font-size:11px;color:var(--text-secondary);margin-top:2px">
+                  The AI pipeline returned invalid JSON twice despite retrying. A manual review of the raw response is
+                  required.
+                </div>
+              </div>
+            </div>
+            <pre class="evidence-block" id="live-fallback-json" style="margin-top:10px;max-height:200px"></pre>
+          </div>
+        </div>
+
+        <!-- Results area -->
+        <div id="live-result-area" style="display:none;margin-top:20px">
+          <div class="section-block">
+            <div class="section-title">Root Cause</div>
+            <div class="diag-root-cause" id="live-root-cause"></div>
+          </div>
+
+          <div class="diagnose-form-grid">
+            <div class="section-block">
+              <div class="section-title">Confidence</div>
+              <div id="live-confidence" style="font-size:28px;font-weight:700;margin-top:4px"></div>
+              <div class="confidence-bar" style="margin-top:8px">
+                <div class="confidence-fill" id="live-confidence-bar"></div>
+              </div>
+            </div>
+            <div class="section-block">
+              <div class="section-title">OSI Layer</div>
+              <div id="live-osi-layer" style="font-size:16px;font-weight:600;color:var(--text-primary);margin-top:8px">
+              </div>
+            </div>
+          </div>
+
+          <div class="section-block">
+            <div class="section-title">Supporting Evidence</div>
+            <ul class="list-plain" id="live-evidence"></ul>
+          </div>
+
+          <div class="section-block">
+            <div class="section-title">Recommended Next Command</div>
+            <pre class="evidence-block" id="live-next-command" style="max-height:80px;margin-top:6px"></pre>
+          </div>
+
+          <div class="section-block">
+            <div class="section-title">Fix Steps</div>
+            <ul class="list-plain" id="live-fix-steps"></ul>
+          </div>
+
+          <div class="section-block">
+            <button class="diag-btn secondary" style="font-size:10px;padding:4px 8px;margin-bottom:6px"
+              onclick="toggleRawJson()">Show/Hide Raw JSON</button>
+            <pre class="evidence-block" id="live-raw-json" style="display:none;max-height:200px;font-size:11px"></pre>
+          </div>
+
+          <div class="section-block">
+            <p style="font-size:12px;color:var(--text-secondary)">NetSage recommends the fix. The engineer applies and
+              verifies it in Cisco Packet Tracer.</p>
+          </div>
+        </div>
+
+        <!-- Human Review Area -->
+        <div id="live-review-area" style="display:none;margin-top:20px">
+          <div class="section-block glass-card" style="padding:14px 18px;border-color:var(--bg-layer-border)">
+            <div class="section-title" style="margin-bottom:10px">Human Review</div>
+            <p style="font-size:11px;color:var(--text-secondary);margin-bottom:10px">Current Demonstration Review</p>
+            <div style="display:flex;gap:10px;margin-bottom:10px">
+              <button class="diag-btn secondary" id="rev-accept"
+                onclick="submitReviewAction('Accepted')">Accept</button>
+              <button class="diag-btn secondary" id="rev-edit" onclick="submitReviewAction('Edited')">Edit</button>
+              <button class="diag-btn secondary" id="rev-reject"
+                onclick="submitReviewAction('Rejected')">Reject</button>
+            </div>
+            <div id="review-extra" style="display:none">
+              <div id="edit-diagnosis-form"
+                style="display:none; background:var(--bg-layer); padding:12px; margin-bottom:12px; border-radius:4px; border:1px solid var(--edited-border);">
+                <p style="font-size:11px;font-weight:600;margin-bottom:8px;color:var(--edited-text)">✏️ Edit Diagnosis
+                  Fields:</p>
+                <label style="font-size:11px">Root Cause:</label>
+                <textarea id="edit-root-cause" class="diag-textarea" rows="2" style="margin-bottom:8px"></textarea>
+
+                <label style="font-size:11px">OSI Layer:</label>
+                <input id="edit-osi-layer" type="text" class="diag-input" style="margin-bottom:8px;width:100%" />
+
+                <label style="font-size:11px">Recommended Next Command:</label>
+                <input id="edit-next-command" type="text" class="diag-input" style="margin-bottom:8px;width:100%" />
+
+                <label style="font-size:11px">Fix Steps (one per line):</label>
+                <textarea id="edit-fix-steps" class="diag-textarea" rows="3" style="margin-bottom:8px"></textarea>
+              </div>
+              <label style="font-size:11px;font-weight:600;">Reason (Required for Edit/Reject):</label>
+              <textarea id="review-reason" class="diag-textarea" rows="2"
+                style="margin-top:5px;margin-bottom:10px"></textarea>
+              <button class="diag-btn primary" onclick="finalizeReview()" style="padding:4px 12px;font-size:11px">Save
+                Review</button>
+            </div>
+            <div id="review-status" style="font-size:12px;font-weight:700;display:none;margin-top:10px"></div>
+          </div>
+        </div>
+
+        <!-- Packet Tracer Verification -->
+        <div id="live-verification-area" style="display:none;margin-top:20px">
+          <div class="section-block glass-card" style="padding:14px 18px;border-color:var(--bg-layer-border)">
+            <div class="section-title" style="margin-bottom:10px">Packet Tracer Verification</div>
+            <p style="font-size:11px;color:var(--text-secondary);margin-bottom:10px">Apply the fix manually in Packet
+              Tracer. Did it work?</p>
+            <textarea id="verify-evidence" class="diag-textarea" rows="2"
+              placeholder="Verification evidence (e.g. Ping output)" style="margin-bottom:10px"></textarea>
+            <div style="display:flex;gap:10px;">
+              <button class="diag-btn secondary" id="ver-ok" onclick="submitVerification('Verified')">Mark
+                Verified</button>
+              <button class="diag-btn secondary" id="ver-no" onclick="submitVerification('Not Verified')">Mark Not
+                Verified</button>
+            </div>
+            <div id="verify-status" style="font-size:12px;font-weight:700;display:none;margin-top:10px"></div>
+          </div>
+        </div>
+
+        <!-- Case Complete Summary -->
+        <div id="live-complete-area" style="display:none;margin-top:20px">
+          <div class="section-block glass-card" style="padding:14px 18px;border-color:var(--accepted-border)">
+            <div class="section-title" style="color:var(--accepted-text);margin-bottom:10px">CASE COMPLETE</div>
+            <p id="summary-text" style="font-size:12px;color:var(--text-primary);white-space:pre-wrap"></p>
+          </div>
+        </div>
+
+        <!-- Error area -->
+        <div id="live-error-area" style="display:none;margin-top:20px">
+          <div class="section-block" style="border-color:var(--rejected-border)">
+            <div class="section-title" style="color:var(--rejected-text)">Error</div>
+            <div id="live-error-msg" style="font-size:12px;color:var(--text-secondary);margin-top:6px"></div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ═══════════════════════════════════════════════════════════
+         VIEW 7 — HISTORY
+    ═══════════════════════════════════════════════════════════ -->
+      <section class="view" id="view-history" aria-label="Troubleshooting History">
+        <div class="page-header">
+          <h1 class="page-title">🕰️ Troubleshooting History</h1>
+          <p class="page-desc">
+            Complete audit trail of all ad-hoc live troubleshooting sessions, kept completely separate from the verified
+            historical dataset metrics.
+          </p>
+        </div>
+
+        <div class="section-block">
+          <div class="table-scroll">
+            <table class="rule-table" aria-label="Troubleshooting History">
+              <thead>
+                <tr>
+                  <th>Session ID</th>
+                  <th>Date</th>
+                  <th>Symptom Summary</th>
+                  <th>Diagnosis Status</th>
+                  <th>Review Decision</th>
+                  <th>Verification</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="history-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
 
     </main><!-- /#main -->
   </div><!-- /#app -->

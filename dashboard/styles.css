@@ -1236,3 +1236,114 @@ svg.chart {
     min-width: 60px;
   }
 }
+/* ── Live Diagnosis ────────────────────────────────────────────────── */
+.diagnose-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+@media (max-width: 960px) {
+  .diagnose-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.diag-input,
+.diag-textarea {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  color: var(--text-primary);
+  font-size: 12px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.diag-textarea.mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  line-height: 1.75;
+}
+
+.diag-input:focus,
+.diag-textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+.diag-input::placeholder,
+.diag-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.diag-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.diag-btn.primary {
+  background: linear-gradient(135deg, #4f7ef8, #6366f1);
+  color: #fff;
+  border-color: rgba(79, 126, 248, 0.5);
+  box-shadow: 0 2px 12px rgba(79, 126, 248, 0.25);
+}
+
+.diag-btn.primary:hover {
+  background: linear-gradient(135deg, #6388fa, #7c7cf5);
+  box-shadow: 0 4px 20px rgba(79, 126, 248, 0.35);
+  transform: translateY(-1px);
+}
+
+.diag-btn.primary:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 6px rgba(79, 126, 248, 0.2);
+}
+
+.diag-btn.primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.diag-btn.secondary {
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border-color: var(--border);
+}
+
+.diag-btn.secondary:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+  border-color: var(--border-light);
+}
+
+/* Spinner */
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

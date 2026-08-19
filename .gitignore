@@ -2,3 +2,4 @@ __pycache__/
 .pytest_cache/
 *.pyc
 .env
+dashboard/live_sessions.json
